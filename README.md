@@ -3,5 +3,5 @@
 
 See some details here https://github.com/Tomat7/ACpower
 
-Worked, but not wide tested.
+Worked, but not widely tested yet.
 See example to find used PINs.
