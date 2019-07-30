@@ -19,14 +19,15 @@
 
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20190719 "
+#define LIBVERSION "ACpower3_v20190729 "
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
 
 #define ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
 #define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн - 4
-#define ADC_NOISE 1000  // попробуем "понизить" шум АЦП
+#define ADC_NOISE 4  // попробуем "понизить" шум АЦП
+#define ADC_COUNT (ADC_RATE * ADC_WAVES)
 
 #define U_ZERO 1931     //2113
 #define I_ZERO 1942     //1907
@@ -58,9 +59,10 @@ public:
 	//ACpower3(uint16_t Pm, uint8_t pinZeroCross, uint8_t pinTriac, uint8_t pinVoltage, uint8_t pinCurrent);
 	//ACpower3(uint16_t Pm, uint8_t pinZeroCross, uint8_t pinTriac, uint8_t pinVoltage, uint8_t pinCurrent, bool ShowLog);
 	
-	float Inow = 0;   		// переменная расчета RMS тока
-	float Unow = 0;   		// переменная расчета RMS напряжения
+	float I[3];   		// переменная расчета RMS тока
+	float U[3];   		// переменная расчета RMS напряжения
 
+	uint16_t P[3];
 	uint16_t Pnow;
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
@@ -80,7 +82,7 @@ public:
 	//void init(uint16_t* pAngle, bool NeedCalibrate);			// 3-phas
 	void init();
 	void initADC();
-	void initADC(uint8_t pinU0, uint8_t pinI0, uint8_t pinU1, uint8_t pinI1, uint8_t pinU2, uint8_t pinI2);
+	void initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU1, uint8_t pinI2, uint8_t pinU2);
 
 	void control();
 	void control(uint16_t angle_);
@@ -96,6 +98,7 @@ public:
 	volatile static uint32_t _Icntr;
 	volatile static uint32_t _Ucntr;
 	
+	volatile static uint32_t _cntr;
 	//uint8_t PinTriac;
 
 protected:
@@ -110,23 +113,31 @@ protected:
 	
 	static hw_timer_t* timerTriac[3];
 	static uint8_t _pinTriac[3];
+	
 	uint8_t _pinZCross[3];
 	volatile static uint32_t _msZCmillis[3];
 	
+	uint8_t _pinI[3];
+	uint8_t _pinU[3];
+	
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
+	
 	void setup_ADC();
 	void correctRMS();
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);
 	
 	int16_t _angle = 0;
-	uint8_t _phaseQty;
+	//uint8_t _phaseQty;
+	uint8_t _now;		// current phase - ADC calculate THIS phase
+	
 	float _Uratio;
 	float _Iratio;
 	
 	bool _ShowLog;
 	bool _corrRMS = false;
 	bool _useADC = false;
+	
 	float *_pUcorr = NULL, *_pIcorr = NULL;
 	
 	hw_timer_t* timerADC = NULL;
@@ -139,15 +150,15 @@ protected:
 
 	volatile static uint8_t _zero;
 	volatile static uint8_t _pin;
-	static uint8_t _pinI;
-	static uint8_t _pinU;
+	//static uint8_t _pinI;
+	//static uint8_t _pinU;
 	
 	//volatile static uint16_t* _pAngle;
 	volatile static uint64_t _summ;
 	volatile static uint64_t _I2summ;
 	volatile static uint64_t _U2summ;
 
-	volatile static uint32_t _cntr;
+	//volatile static uint32_t _cntr;
 
 	volatile static uint16_t _zerolevel;
 	static uint16_t _Izerolevel;

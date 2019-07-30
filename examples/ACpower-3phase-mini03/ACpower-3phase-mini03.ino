@@ -68,13 +68,14 @@ void setup()
   */
 
   TEH.init();
-
+  TEH.initADC(PIN_I0, PIN_U0, PIN_I1, PIN_U1, PIN_I2, PIN_U2);
+  PRINTF(" _cntr2 ", TEH._cntr);
 }
 
 void loop()
 {
-  TEH.control(Angle);  // нужно вызывать регулярно для пересчета мощности и угла открытия триака
-  if ((millis() - msShow) > SHOWINTERVAL)
+  TEH.control();  // нужно вызывать регулярно для пересчета мощности и угла открытия триака
+  if ((millis() - msShow + random(100)) > SHOWINTERVAL)
   {
     chkSerial();
     showInfo();
@@ -99,7 +100,9 @@ void showInfo()
   Serial.println(Angle);
   //PRINTF("&Angle=", (uint32_t)&Angle, HEX);
   PRINTF(" TEH.Angle: ", TEH.Angle);
-
+  PRINTF(" TEH.CounterRMS: ", TEH.CounterRMS);
+  PRINTF(" TEH._cntr ", TEH._cntr);
+  
   for (int i = 0; i < 3; i++)
   {
     Serial.print(i);
@@ -107,8 +110,14 @@ void showInfo()
     TEH.CounterZC[i] = 0;
     PRINTF("  TEH.CounterTR: ", TEH.CounterTR[i]);
     TEH.CounterTR[i] = 0;
+    
+    PRINTF("  TEH.I: ", TEH.I[i]);
+    PRINTF("  TEH.U: ", TEH.U[i]);
+    PRINTF("  TEH.P: ", TEH.P[i]);
   }
 
+  PRINTF("  TEH.Pnow: ", TEH.Pnow);
+  
   Serial.print("+++");
   Serial.println(millis());
 

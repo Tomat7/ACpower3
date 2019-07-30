@@ -44,7 +44,8 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 		PRINT(" ZCross on pin ");
 		PRINT(_pinZCross[i]);
 	}
-	takeADC = false;
+	
+	//takeADC = false;
 	_msZCmillis[i] = millis();
 	pinMode(_pinZCross[i], INPUT_PULLUP);
 	
@@ -58,18 +59,29 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 
 void ACpower3::setup_ADC()
 {
+	//uint16_t ADCperSet = ADC_RATE * ADC_WAVES;
 	uint16_t usADCinterval = (uint16_t)(10000 / ADC_RATE);
-	uint16_t ADCperSet = ADC_RATE * ADC_WAVES;
+
+	smphRMS = xSemaphoreCreateBinary();
+	getI = true;
+	_cntr = ADC_COUNT;
+	_now = 0;
+	_pin = _pinI[_now];
+	_Iratio = 0.02;
+	_Uratio = 0.2;
+	
 	timerADC = timerBegin(TIMER_ADC, 80, true);
 	timerAttachInterrupt(timerADC, &GetADC_int, true);
 	timerAlarmWrite(timerADC, usADCinterval, true);
 	timerAlarmEnable(timerADC);
+	DELAYx;
+	
 	if (_ShowLog) 
 	{
 		PRINTLN(" + ADC Inerrupt setup OK");
 		PRINTF(" . ADC microSeconds between samples: ", usADCinterval);
 		PRINTF(" . ADC samples per half-wave: ", ADC_RATE);
-		PRINTF(" . ADC samples per calculation set: ", ADCperSet);
+		PRINTF(" . ADC samples per calculation set: ", ADC_COUNT);
 		PRINTF(" . ADC half-waves per calculation set: ", ADC_WAVES);
 	}
 	return;

@@ -10,7 +10,7 @@
 
 #if defined(ESP32)
 
-//portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
+portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
 //hw_timer_t *ACpower3::timerTriac = NULL;
 volatile SemaphoreHandle_t ACpower3::smphRMS;
 
@@ -35,12 +35,12 @@ uint8_t ACpower3::_pinTriac;
 */
 	
 volatile uint32_t ACpower3::_cntr = 1;
-volatile uint32_t ACpower3::_Icntr = 1;
-volatile uint32_t ACpower3::_Ucntr = 1;
+//volatile uint32_t ACpower3::_Icntr = 1;
+//volatile uint32_t ACpower3::_Ucntr = 1;
 
 volatile uint64_t ACpower3::_summ = 0;
-volatile uint64_t ACpower3::_I2summ = 0;
-volatile uint64_t ACpower3::_U2summ = 0;
+//volatile uint64_t ACpower3::_I2summ = 0;
+//volatile uint64_t ACpower3::_U2summ = 0;
 
 volatile uint16_t ACpower3::_zerolevel = 0;
 /*
@@ -55,7 +55,7 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 {
 	portENTER_CRITICAL_ISR(&muxADC);
 	
-	if (takeADC)
+	if (_cntr < ADC_COUNT)
 	{
 		Xnow = adcEnd(_pin) - _zerolevel;
 		X2 = Xnow * Xnow;
@@ -64,11 +64,16 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 		_cntr++;
 		adcStart(_pin);
 	}
-	else if (_cntr == 0)
+	else if (_cntr == (ADC_COUNT + 10))
 	{
 		adcEnd(_pin);
-		takeADC = true;
+		_cntr = 0;
 		adcStart(_pin);
+	}
+	else if (_cntr == ADC_COUNT)
+	{
+		xSemaphoreGiveFromISR(smphRMS, NULL);
+		_cntr++;
 	}
 	
 	portEXIT_CRITICAL_ISR(&ACpower3::muxADC);
@@ -76,7 +81,7 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 	D(ADCprio = uxTaskPriorityGet(NULL));
 	return;
 }
-
+/*
 void ACpower3::calibrate(uint16_t Scntr)
 {
 	PRINTLN(" + RMS calculating ZERO-shift for U and I...");
@@ -106,6 +111,6 @@ uint16_t ACpower3::get_ZeroLevel(uint8_t z_pin, uint16_t Scntr)
 	adcEnd(z_pin);
 	return (uint16_t)(ZeroShift / Scntr);
 }
-
+*/
 
 #endif // ESP32

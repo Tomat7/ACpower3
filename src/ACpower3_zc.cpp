@@ -10,7 +10,7 @@
 
 #if defined(ESP32)
 
-portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
+//portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
 //hw_timer_t *ACpower3::timerTriac = NULL;
 //volatile SemaphoreHandle_t ACpower3::smphRMS;
 
