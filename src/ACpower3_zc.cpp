@@ -17,7 +17,7 @@ portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
 //volatile bool ACpower3::getI = true;
 //volatile bool ACpower3::takeADC = false;
 
-volatile uint16_t* ACpower3::_pAngle;
+//volatile uint16_t* ACpower3::_pAngle;
 volatile uint16_t ACpower3::Angle;
 //volatile int16_t ACpower3::Xnow;
 //volatile uint32_t ACpower3::X2;
@@ -62,9 +62,9 @@ void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
 				
-		timerWrite(timerTriac[i], *_pAngle);
+		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
-		Angle = *_pAngle;
+		//Angle = *_pAngle;
 	}
 	return;
 }
@@ -79,9 +79,9 @@ void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
 				
-		timerWrite(timerTriac[i], *_pAngle);
+		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
-		Angle = *_pAngle;
+		//Angle = *_pAngle;
 	}
 	return;
 }
@@ -96,9 +96,9 @@ void IRAM_ATTR ACpower3::ZeroCross_int2() //__attribute__((always_inline))
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
 				
-		timerWrite(timerTriac[i], *_pAngle);
+		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
-		Angle = *_pAngle;
+		//Angle = *_pAngle;
 	}
 	return;
 }

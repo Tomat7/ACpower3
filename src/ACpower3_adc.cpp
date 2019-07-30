@@ -80,7 +80,7 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 void ACpower3::calibrate(uint16_t Scntr)
 {
 	PRINTLN(" + RMS calculating ZERO-shift for U and I...");
-	*_pAngle = 0;
+	Angle = 0;
 	_Izerolevel = get_ZeroLevel(_pinI, Scntr);
 	_Uzerolevel = get_ZeroLevel(_pinU, Scntr);
 	if (_ShowLog)

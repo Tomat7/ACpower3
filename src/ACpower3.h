@@ -77,10 +77,13 @@ public:
 	//void init(float Iratio, float Uratio);
 	//void init(float Iratio, float Uratio, bool NeedCalibrate);
 	//void init(float Iratio, float Uratio, uint8_t phaseN);	// 3-phase
-	void init(uint16_t* pAngle, bool NeedCalibrate);			// 3-phas
-	void init(uint16_t* pAngle);			// 3-phase
-	
+	//void init(uint16_t* pAngle, bool NeedCalibrate);			// 3-phas
+	void init();
+	void initADC();
+	void initADC(uint8_t pinU0, uint8_t pinI0, uint8_t pinU1, uint8_t pinI1, uint8_t pinU2, uint8_t pinI2);
+
 	void control();
+	void control(uint16_t angle_);
 	void check();
 	void stop();
 	void setpower(uint16_t setP);
@@ -88,18 +91,15 @@ public:
 	void calibrate();
 	void calibrate(uint16_t Scntr);
 	void setRMScorrection(float *pIcorr, float *pUcorr);
-	//=== Прерывания
-	
-
 	//static void CloseTriac_int(); //__attribute__((always_inline));
-	// === test
 
 	volatile static uint32_t _Icntr;
 	volatile static uint32_t _Ucntr;
 	
-	uint8_t PinTriac;
+	//uint8_t PinTriac;
 
 protected:
+	//=== Прерывания
 	static void ZeroCross_int0();
 	static void OpenTriac_int0(); 
 	static void ZeroCross_int1();
@@ -126,6 +126,7 @@ protected:
 	
 	bool _ShowLog;
 	bool _corrRMS = false;
+	bool _useADC = false;
 	float *_pUcorr = NULL, *_pIcorr = NULL;
 	
 	hw_timer_t* timerADC = NULL;
@@ -141,7 +142,7 @@ protected:
 	static uint8_t _pinI;
 	static uint8_t _pinU;
 	
-	volatile static uint16_t* _pAngle;
+	//volatile static uint16_t* _pAngle;
 	volatile static uint64_t _summ;
 	volatile static uint64_t _I2summ;
 	volatile static uint64_t _U2summ;

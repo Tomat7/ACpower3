@@ -14,12 +14,12 @@ void ACpower3::setup_Triac(uint8_t i)
 {
 	if (_ShowLog)
 	{
-	PRINT(" . ");
-	PRINT(i);
-	PRINT(" TRIAC on pin ");
-	PRINT(_pinTriac[i]);
+		PRINT(" . ");
+		PRINT(i);
+		PRINT(" TRIAC on pin ");
+		PRINT(_pinTriac[i]);
 	}
-	*_pAngle = 0;
+	Angle = 0;
 	pinMode(_pinTriac[i], OUTPUT);
 	digitalWrite(_pinTriac[i], LOW);
 	timerTriac[i] = timerBegin(i, 80, true);
@@ -30,7 +30,7 @@ void ACpower3::setup_Triac(uint8_t i)
 	
 	timerAlarmWrite(timerTriac[i], (ANGLE_MAX + ANGLE_DELTA), true);
 	timerAlarmEnable(timerTriac[i]);
-	timerWrite(timerTriac[i], *_pAngle);
+	timerWrite(timerTriac[i], Angle);
 	if (_ShowLog) PRINTLN(" - OK");
 	return;
 }

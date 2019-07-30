@@ -34,20 +34,9 @@ ACpower3::ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinZC1, uint8_t pinTR
 }
 
 
-void ACpower3::init(uint16_t* pAngle)
+void ACpower3::init()
 {  
-	//PRINTF("_pAngle=", (uint32_t)_pAngle, HEX);
-	init(pAngle, true);
-	//init(Iratio, Uratio, true);
-	return;
-}
-
-void ACpower3::init(uint16_t* pAngle, bool NeedCalibrate)
-{  
-	_pAngle = pAngle;
-	//_Iratio = Iratio;
-	//_Uratio = Uratio;
-	//_pAngle = (uint16_t*) malloc(sizeof(uint16_t));
+	Angle = 0;
 	if (_ShowLog)
 	{
 		Serial.println(F(LIBVERSION));
@@ -63,17 +52,28 @@ void ACpower3::init(uint16_t* pAngle, bool NeedCalibrate)
 		setup_ZeroCross(i);
 		DELAYx;
 	}
-	/*if (_phaseQty == 1)
+	return;
+}
+/*
+void ACpower3::init(uint16_t* pAngle, bool NeedCalibrate)
+{  
+	init();
+	_pAngle = pAngle;
+	//_Iratio = Iratio;
+	//_Uratio = Uratio;
+	//_pAngle = (uint16_t*) malloc(sizeof(uint16_t));
+
+	if (_phaseQty == 1)
 	{
 		_Iratio = Iratio;
 		_Uratio = Uratio;
 		if (NeedCalibrate) calibrate(SHIFT_CHECK_SAMPLES);
 		setup_ADC();
 		DELAYx;
-	} */
+	} 
 	return;
 }
-
+*/
 void ACpower3::control()
 {	
 	if (xSemaphoreTake(smphRMS, 0) == pdTRUE)
@@ -92,14 +92,19 @@ void ACpower3::control()
 		}
 		else _angle = ANGLE_MIN - 500;
 		
-		*_pAngle = _angle;
-		Angle = *_pAngle;
+		Angle = _angle;
 		D(RMScore = xPortGetCoreID());
 		D(RMSprio = uxTaskPriorityGet(NULL));
 	}
 	return;
 }
 
+void ACpower3::control(uint16_t angle_)
+{	
+		
+	Angle = angle_;
+	return;
+}
 
 void ACpower3::setRMScorrection(float *pIcorr, float *pUcorr)
 {
@@ -137,14 +142,12 @@ void ACpower3::correctRMS()
 
 void ACpower3::stop()
 {
-	*_pAngle = 0;
+	Angle = 0;
 	delay(20);
-	if (_phaseQty == 1)
-	{
-		timerStop(timerADC);
-		timerDetachInterrupt(timerADC);
-	}
-	for (int i=0; i<3; i++)
+	timerStop(timerADC);
+	timerDetachInterrupt(timerADC);
+
+for (int i=0; i<3; i++)
 	{
 		timerStop(timerTriac[i]);
 		timerDetachInterrupt(timerTriac[i]);
