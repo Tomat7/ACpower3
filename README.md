@@ -3,9 +3,7 @@
 
 See some details here https://github.com/Tomat7/ACpower
 
-Worked, but not widely tested yet.
-  
-See example to find used PINs.
+Worked, but not widely tested yet. See example to find some details.
   
 Pinout for ESP32 Wemos Lolin32.
   
