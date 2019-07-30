@@ -61,14 +61,12 @@ void ACpower3::setup_ADC()
 {
 	//uint16_t ADCperSet = ADC_RATE * ADC_WAVES;
 	uint16_t usADCinterval = (uint16_t)(10000 / ADC_RATE);
-
 	smphRMS = xSemaphoreCreateBinary();
 	getI = true;
 	_cntr = ADC_COUNT;
 	_now = 0;
 	_pin = _pinI[_now];
-	_Iratio = 0.02;
-	_Uratio = 0.2;
+	_zerolevel = _Izerolevel[_now];
 	
 	timerADC = timerBegin(TIMER_ADC, 80, true);
 	timerAttachInterrupt(timerADC, &GetADC_int, true);

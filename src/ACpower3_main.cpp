@@ -10,11 +10,6 @@
 
 #if defined(ESP32)
 
-//uint8_t ACpower3::_pinI;
-//uint8_t ACpower3::_pinU;
-//uint16_t ACpower3::_Izerolevel = 0;
-//uint16_t ACpower3::_Uzerolevel = 0;
-//uint8_t ACpower3::_phaseQty = 0;
 
 void ACpower3::control()
 {	
@@ -42,8 +37,13 @@ void ACpower3::control()
 			_now++;
 			if (_now == 3) _now = 0;
 			_pin = _pinI[_now];
+			_zerolevel = _Izerolevel[_now];
 		}
-		else _pin = _pinU[_now];
+		else
+		{
+			_pin = _pinU[_now];
+			_zerolevel = _Uzerolevel[_now];
+		}
 		
 		adcAttachPin(_pin);
 		_summ = 0;
@@ -72,6 +72,14 @@ void ACpower3::control(uint16_t angle_)
 {	
 		
 	Angle = angle_;
+	return;
+}
+
+
+void ACpower3::setRMSratio(float Iratio, float Uratio)
+{  
+	_Iratio = Iratio;
+	_Uratio = Uratio;
 	return;
 }
 

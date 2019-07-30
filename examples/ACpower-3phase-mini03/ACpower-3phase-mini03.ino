@@ -68,13 +68,28 @@ void setup()
   */
 
   TEH.init();
-  TEH.initADC(PIN_I0, PIN_U0, PIN_I1, PIN_U1, PIN_I2, PIN_U2);
+  TEH.initADC(PIN_I0, PIN_U0, PIN_I1, PIN_U1, PIN_I2, PIN_U2); // для "ручного" режима не нужно
+  //ТЕН.setRMSratio(0.02, 0.2); // может понадобится если "зашитые" коэффициенты не подходят
   PRINTF(" _cntr2 ", TEH._cntr);
 }
 
 void loop()
 {
+  //TEH.control(Angle); // желательно вызывать регулярно
+  /*
+     Так можно задавать угол открыти "вручную". Например для тестирования прибора.
+     Или когда измерением мощности занимается другой прибор.
+     Angle=0 - миниммальная мощность, триак не открывается вообще
+     Angle=10000 - максимальная мощность
+     В этом случае мощность не стабилизируется и "плавает" с напряжением в сети.
+  */
+
   TEH.control();  // нужно вызывать регулярно для пересчета мощности и угла открытия триака
+  /*
+    В этом случае для расчета используются измеренные значение токов и напряжений
+    АЦП должно быть скофигурированно по initADC(...)
+  */
+
   if ((millis() - msShow + random(100)) > SHOWINTERVAL)
   {
     chkSerial();
@@ -86,23 +101,13 @@ void loop()
 
 void showInfo()
 {
-  /*
-    Serial.print("Pnow=");
-    Serial.println(TEH.Pnow);
-    Serial.print("Pset=");
-    Serial.println(TEH.Pset);
-    Serial.print("Unow=");
-    Serial.println(TEH.Unow);
-    Serial.print("Inow=");
-    Serial.println(TEH.Inow);
-  */
   Serial.print("Angle: ");
   Serial.println(Angle);
   //PRINTF("&Angle=", (uint32_t)&Angle, HEX);
   PRINTF(" TEH.Angle: ", TEH.Angle);
   PRINTF(" TEH.CounterRMS: ", TEH.CounterRMS);
   PRINTF(" TEH._cntr ", TEH._cntr);
-  
+
   for (int i = 0; i < 3; i++)
   {
     Serial.print(i);
@@ -110,14 +115,14 @@ void showInfo()
     TEH.CounterZC[i] = 0;
     PRINTF("  TEH.CounterTR: ", TEH.CounterTR[i]);
     TEH.CounterTR[i] = 0;
-    
+
     PRINTF("  TEH.I: ", TEH.I[i]);
     PRINTF("  TEH.U: ", TEH.U[i]);
     PRINTF("  TEH.P: ", TEH.P[i]);
   }
 
+  PRINTF("  TEH.Pset: ", TEH.Pset);
   PRINTF("  TEH.Pnow: ", TEH.Pnow);
-  
   Serial.print("+++");
   Serial.println(millis());
 

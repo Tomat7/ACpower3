@@ -26,8 +26,8 @@
 
 #define ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
 #define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн - 4
-#define ADC_NOISE 4  // попробуем "понизить" шум АЦП
-#define ADC_COUNT (ADC_RATE * ADC_WAVES)
+#define ADC_NOISE 20	// попробуем "понизить" шум АЦП
+#define ADC_COUNT (ADC_RATE * ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
 
 #define U_ZERO 1931     //2113
 #define I_ZERO 1942     //1907
@@ -45,7 +45,7 @@
 
 #define TIMER_TRIAC 0
 #define TIMER_ADC 3
-#define SHIFT_CHECK_SAMPLES 10000	// количество отсчетов для определения "нулевого" уровня
+#define ZEROLEVEL_SAMPLES 5000	// количество отсчетов для определения "нулевого" уровня
 
 //#define DEBUG1
 //#define DEBUG2
@@ -84,14 +84,16 @@ public:
 	void initADC();
 	void initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU1, uint8_t pinI2, uint8_t pinU2);
 
-	void control();
-	void control(uint16_t angle_);
-	void check();
+	void control();					// 
+	void control(uint16_t angle_);  // для "ручного" управления триаком - MIN=0, MAX=10000. Без стабилизации!!
+	//void check();
 	void stop();
 	void setpower(uint16_t setP);
 	void printConfig(uint8_t i);
-	void calibrate();
-	void calibrate(uint16_t Scntr);
+	
+	void setRMSzerolevel();
+	void setRMSzerolevel(uint16_t Scntr);
+	void setRMSratio(float Iratio, float Uratio);
 	void setRMScorrection(float *pIcorr, float *pUcorr);
 	//static void CloseTriac_int(); //__attribute__((always_inline));
 
@@ -119,6 +121,9 @@ protected:
 	
 	uint8_t _pinI[3];
 	uint8_t _pinU[3];
+	uint16_t _Izerolevel[3];
+	uint16_t _Uzerolevel[3];
+
 	
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
@@ -150,8 +155,6 @@ protected:
 
 	volatile static uint8_t _zero;
 	volatile static uint8_t _pin;
-	//static uint8_t _pinI;
-	//static uint8_t _pinU;
 	
 	//volatile static uint16_t* _pAngle;
 	volatile static uint64_t _summ;
@@ -161,10 +164,6 @@ protected:
 	//volatile static uint32_t _cntr;
 
 	volatile static uint16_t _zerolevel;
-	static uint16_t _Izerolevel;
-	static uint16_t _Uzerolevel;
-
-
 
 };
 

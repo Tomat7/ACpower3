@@ -12,8 +12,8 @@
 
 //uint8_t ACpower3::_pinI;
 //uint8_t ACpower3::_pinU;
-uint16_t ACpower3::_Izerolevel = 0;
-uint16_t ACpower3::_Uzerolevel = 0;
+//uint16_t ACpower3::_Izerolevel = 0;
+//uint16_t ACpower3::_Uzerolevel = 0;
 //uint8_t ACpower3::_phaseQty = 0;
 
 ACpower3::ACpower3()
@@ -64,28 +64,11 @@ void ACpower3::initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU
 	_pinI[2] = pinI2;		// пин подключения детектора нуля.
 	_pinU[2] = pinU2;		// пин управляющий триаком. 
 	_useADC = true;
+	setRMSzerolevel(ZEROLEVEL_SAMPLES);
 	setup_ADC();
+	setRMSratio(0.02, 0.2);
 }
-/*
-void ACpower3::init(uint16_t* pAngle, bool NeedCalibrate)
-{  
-	init();
-	_pAngle = pAngle;
-	//_Iratio = Iratio;
-	//_Uratio = Uratio;
-	//_pAngle = (uint16_t*) malloc(sizeof(uint16_t));
 
-	if (_phaseQty == 1)
-	{
-		_Iratio = Iratio;
-		_Uratio = Uratio;
-		if (NeedCalibrate) calibrate(SHIFT_CHECK_SAMPLES);
-		setup_ADC();
-		DELAYx;
-	} 
-	return;
-}
-*/
 
 void ACpower3::stop()
 {

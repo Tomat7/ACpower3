@@ -33,7 +33,7 @@ uint8_t ACpower3::_pinU;
 uint8_t ACpower3::_pinTriac;
 //uint8_t ACpower3::_pinZCross;
 */
-	
+
 volatile uint32_t ACpower3::_cntr = 1;
 //volatile uint32_t ACpower3::_Icntr = 1;
 //volatile uint32_t ACpower3::_Ucntr = 1;
@@ -81,17 +81,34 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 	D(ADCprio = uxTaskPriorityGet(NULL));
 	return;
 }
-/*
-void ACpower3::calibrate(uint16_t Scntr)
+
+void ACpower3::setRMSzerolevel(uint16_t Scntr)
 {
 	PRINTLN(" + RMS calculating ZERO-shift for U and I...");
 	Angle = 0;
-	_Izerolevel = get_ZeroLevel(_pinI, Scntr);
-	_Uzerolevel = get_ZeroLevel(_pinU, Scntr);
-	if (_ShowLog)
+	for (int i = 0; i < 3; i++) 
 	{
-		PRINTF(" . RMS ZeroLevel U: ", _Uzerolevel);
-		PRINTF(" . RMS ZeroLevel I: ", _Izerolevel);
+		if (_ShowLog)
+		{
+			
+			PRINT(" . ");
+			PRINT(i);
+			PRINT(" I-meter on pin ");
+			PRINT(_pinI[i]);
+			PRINTF(", U-meter on pin ", _pinI[i]);
+		}
+		
+		_Izerolevel[i] = get_ZeroLevel(_pinI[i], Scntr);
+		_Uzerolevel[i] = get_ZeroLevel(_pinU[i], Scntr);
+
+		if (_ShowLog)
+		{
+			PRINT(" . ");
+			PRINT(i);
+			PRINT(" RMS ZeroLevel I: ");
+			PRINT(_Izerolevel[i]);
+			PRINTF(", U: ", _Uzerolevel[i]);
+		}
 	}
 	return;
 }
@@ -111,6 +128,6 @@ uint16_t ACpower3::get_ZeroLevel(uint8_t z_pin, uint16_t Scntr)
 	adcEnd(z_pin);
 	return (uint16_t)(ZeroShift / Scntr);
 }
-*/
+
 
 #endif // ESP32
