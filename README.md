@@ -1,9 +1,12 @@
 # ACpower3
  Three-phase AC power regulator on ESP32
+ 
+ __Warning! Hi voltage is dangerous! Be careful!__
+=================================================
 
-See some details here https://github.com/Tomat7/ACpower
+Based on 1-phase regulator.  See here https://github.com/Tomat7/ACpower for more links and details.
 
-Worked, but not widely tested yet. See example to find some details.
+Current version not widely tested yet. :-)  See example.
   
 Pinout for ESP32 Wemos Lolin32.
   
