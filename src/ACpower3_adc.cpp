@@ -10,7 +10,7 @@
 
 #if defined(ESP32)
 
-//portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
+portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
 //hw_timer_t *ACpower3::timerTriac = NULL;
 volatile SemaphoreHandle_t ACpower3::smphRMS;
 
@@ -33,14 +33,14 @@ uint8_t ACpower3::_pinU;
 uint8_t ACpower3::_pinTriac;
 //uint8_t ACpower3::_pinZCross;
 */
-	
+
 volatile uint32_t ACpower3::_cntr = 1;
-volatile uint32_t ACpower3::_Icntr = 1;
-volatile uint32_t ACpower3::_Ucntr = 1;
+//volatile uint32_t ACpower3::_Icntr = 1;
+//volatile uint32_t ACpower3::_Ucntr = 1;
 
 volatile uint64_t ACpower3::_summ = 0;
-volatile uint64_t ACpower3::_I2summ = 0;
-volatile uint64_t ACpower3::_U2summ = 0;
+//volatile uint64_t ACpower3::_I2summ = 0;
+//volatile uint64_t ACpower3::_U2summ = 0;
 
 volatile uint16_t ACpower3::_zerolevel = 0;
 /*
@@ -55,7 +55,7 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 {
 	portENTER_CRITICAL_ISR(&muxADC);
 	
-	if (takeADC)
+	if (_cntr < ADC_COUNT)
 	{
 		Xnow = adcEnd(_pin) - _zerolevel;
 		X2 = Xnow * Xnow;
@@ -64,11 +64,16 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 		_cntr++;
 		adcStart(_pin);
 	}
-	else if (_cntr == 0)
+	else if (_cntr == (ADC_COUNT + 10))
 	{
 		adcEnd(_pin);
-		takeADC = true;
+		_cntr = 0;
 		adcStart(_pin);
+	}
+	else if (_cntr == ADC_COUNT)
+	{
+		xSemaphoreGiveFromISR(smphRMS, NULL);
+		_cntr++;
 	}
 	
 	portEXIT_CRITICAL_ISR(&ACpower3::muxADC);
@@ -77,16 +82,33 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 	return;
 }
 
-void ACpower3::calibrate(uint16_t Scntr)
+void ACpower3::setRMSzerolevel(uint16_t Scntr)
 {
 	PRINTLN(" + RMS calculating ZERO-shift for U and I...");
-	*_pAngle = 0;
-	_Izerolevel = get_ZeroLevel(_pinI, Scntr);
-	_Uzerolevel = get_ZeroLevel(_pinU, Scntr);
-	if (_ShowLog)
+	Angle = 0;
+	for (int i = 0; i < 3; i++) 
 	{
-		PRINTF(" . RMS ZeroLevel U: ", _Uzerolevel);
-		PRINTF(" . RMS ZeroLevel I: ", _Izerolevel);
+		if (_ShowLog)
+		{
+			
+			PRINT(" . ");
+			PRINT(i);
+			PRINT(" I-meter on pin ");
+			PRINT(_pinI[i]);
+			PRINTF(", U-meter on pin ", _pinI[i]);
+		}
+		
+		_Izerolevel[i] = get_ZeroLevel(_pinI[i], Scntr);
+		_Uzerolevel[i] = get_ZeroLevel(_pinU[i], Scntr);
+
+		if (_ShowLog)
+		{
+			PRINT(" . ");
+			PRINT(i);
+			PRINT(" RMS ZeroLevel I: ");
+			PRINT(_Izerolevel[i]);
+			PRINTF(", U: ", _Uzerolevel[i]);
+		}
 	}
 	return;
 }

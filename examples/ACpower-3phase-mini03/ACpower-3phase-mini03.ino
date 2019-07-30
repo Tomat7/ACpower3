@@ -17,25 +17,25 @@
 // Коэффициенты ниже справедливы только для Arduino c 10-битным АЦП и 5-вольтовым питанием!
 // Коэффициенты датчика ACS712 |5А - 0.024414063 | 20А - 0.048828125 | 30A - 0.073242188 |
 
-#include "ACpower.h"
+#include "ACpower3.h"
 
 #if defined(ESP32)
-//#define PIN_ZC0 25  // детектор нуля
-//#define PIN_TR0 26  // триак 
-const byte PIN_ZC0=25;  // детектор нуля
-const byte PIN_TR0=26;  // триак 
-//#define PIN_U0 39  // датчик напряжения
-//#define PIN_I0 36  // датчик тока
 
-#define PIN_ZC1 27  // детектор нуля
-#define PIN_TR1 14  // триак 
-//#define PIN_U1 39  // датчик напряжения
-//#define PIN_I1 36  // датчик тока
+#define PIN_ZC0 25  // детектор нуля
+#define PIN_TR0 26  // триак
+#define PIN_I0 36  // датчик тока
+#define PIN_U0 39  // датчик напряжения
 
-#define PIN_ZC2 12  // детектор нуля
-#define PIN_TR2 13  // триак 
-//#define PIN_U2 39  // датчик напряжения
-//#define PIN_I2 36  // датчик тока
+#define PIN_ZC1 14  // детектор нуля ??
+#define PIN_TR1 27  // триак 
+#define PIN_I1 32  // датчик тока
+#define PIN_U1 33  // датчик напряжения
+
+#define PIN_ZC2 13  // детектор нуля
+#define PIN_TR2 12  // триак ??
+#define PIN_I2 34  // датчик тока
+#define PIN_U2 35  // датчик напряжения
+
 #else
 #error "Chip not supported. Use ESP32."
 #endif
@@ -48,13 +48,8 @@ const byte PIN_TR0=26;  // триак
   pinVoltage - "имя" вывода к которому подключен "датчик напряжения" - трансформатор с обвязкой (A0-A7)
   pinACS712 - "имя" вывода к которому подключен "датчик тока" - ACS712 (A0-A7)
 */
-/*
-ACpower TEH[] = { ACpower(PIN_ZC0, PIN_TR0),
-                  ACpower(PIN_ZC1, PIN_TR1),
-                  ACpower(PIN_ZC2, PIN_TR2)
-                };
-*/
-ACpower TEH[3];
+
+ACpower3 TEH = { PIN_ZC0, PIN_TR0, PIN_ZC1, PIN_TR1, PIN_ZC2, PIN_TR2 };
 
 uint16_t inst_P = 0;
 unsigned long msShow = 0;
@@ -66,27 +61,36 @@ void setup()
   Serial.begin(SERIALSPEED);
   delay(300);
   Serial.println(F(SKETCHVERSION));
-  
-    TEH[0] = ACpower(PIN_ZC0, PIN_TR0);
-    TEH[1] = ACpower(PIN_ZC1, PIN_TR1);
-    TEH[2] = ACpower(PIN_ZC2, 4);
-  
   /*
     вызов с двумя параметрами - в этом случае задаётся коэффициент ACS712 или трансформатора тока,
     вторым параметром идет множитель для напряжения - полезно если невозможно откалибровать подстроечником
     и при изменении схемы позволяет использовать почти весь диапазон АЦП Ардуино
   */
 
-  for (int i = 0; i < 3; i++)
-  {
-    TEH[i].init(&Angle, i);
-  }
+  TEH.init();
+  TEH.initADC(PIN_I0, PIN_U0, PIN_I1, PIN_U1, PIN_I2, PIN_U2); // для "ручного" режима не нужно
+  //ТЕН.setRMSratio(0.02, 0.2); // может понадобится если "зашитые" коэффициенты не подходят
+  PRINTF(" _cntr2 ", TEH._cntr);
 }
 
 void loop()
 {
-  //TEH.control();  // нужно вызывать регулярно для пересчета мощности и угла открытия триака
-  if ((millis() - msShow) > SHOWINTERVAL)
+  //TEH.control(Angle); // желательно вызывать регулярно
+  /*
+     Так можно задавать угол открыти "вручную". Например для тестирования прибора.
+     Или когда измерением мощности занимается другой прибор.
+     Angle=0 - миниммальная мощность, триак не открывается вообще
+     Angle=10000 - максимальная мощность
+     В этом случае мощность не стабилизируется и "плавает" с напряжением в сети.
+  */
+
+  TEH.control();  // нужно вызывать регулярно для пересчета мощности и угла открытия триака
+  /*
+    В этом случае для расчета используются измеренные значение токов и напряжений
+    АЦП должно быть скофигурированно по initADC(...)
+  */
+
+  if ((millis() - msShow + random(100)) > SHOWINTERVAL)
   {
     chkSerial();
     showInfo();
@@ -97,29 +101,28 @@ void loop()
 
 void showInfo()
 {
-  /*
-    Serial.print("Pnow=");
-    Serial.println(TEH.Pnow);
-    Serial.print("Pset=");
-    Serial.println(TEH.Pset);
-    Serial.print("Unow=");
-    Serial.println(TEH.Unow);
-    Serial.print("Inow=");
-    Serial.println(TEH.Inow);
-  */
   Serial.print("Angle: ");
   Serial.println(Angle);
   //PRINTF("&Angle=", (uint32_t)&Angle, HEX);
+  PRINTF(" TEH.Angle: ", TEH.Angle);
+  PRINTF(" TEH.CounterRMS: ", TEH.CounterRMS);
+  PRINTF(" TEH._cntr ", TEH._cntr);
 
   for (int i = 0; i < 3; i++)
   {
     Serial.print(i);
-    PRINTF(" TEH.Angle: ", TEH[i].Angle);
-    Serial.print(i);
-    PRINTF(" TEH.CounterZC: ", TEH[i].CounterZC);
-    TEH[i].CounterZC = 0;
+    PRINTF(" TEH.CounterZC: ", TEH.CounterZC[i]);
+    TEH.CounterZC[i] = 0;
+    PRINTF("  TEH.CounterTR: ", TEH.CounterTR[i]);
+    TEH.CounterTR[i] = 0;
+
+    PRINTF("  TEH.I: ", TEH.I[i]);
+    PRINTF("  TEH.U: ", TEH.U[i]);
+    PRINTF("  TEH.P: ", TEH.P[i]);
   }
 
+  PRINTF("  TEH.Pset: ", TEH.Pset);
+  PRINTF("  TEH.Pnow: ", TEH.Pnow);
   Serial.print("+++");
   Serial.println(millis());
 

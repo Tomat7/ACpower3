@@ -10,10 +10,10 @@
 
 #if defined(ESP32)
 
-uint8_t ACpower3::_pinI;
-uint8_t ACpower3::_pinU;
-uint16_t ACpower3::_Izerolevel = 0;
-uint16_t ACpower3::_Uzerolevel = 0;
+//uint8_t ACpower3::_pinI;
+//uint8_t ACpower3::_pinU;
+//uint16_t ACpower3::_Izerolevel = 0;
+//uint16_t ACpower3::_Uzerolevel = 0;
 //uint8_t ACpower3::_phaseQty = 0;
 
 ACpower3::ACpower3()
@@ -34,20 +34,9 @@ ACpower3::ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinZC1, uint8_t pinTR
 }
 
 
-void ACpower3::init(uint16_t* pAngle)
+void ACpower3::init()
 {  
-	//PRINTF("_pAngle=", (uint32_t)_pAngle, HEX);
-	init(pAngle, true);
-	//init(Iratio, Uratio, true);
-	return;
-}
-
-void ACpower3::init(uint16_t* pAngle, bool NeedCalibrate)
-{  
-	_pAngle = pAngle;
-	//_Iratio = Iratio;
-	//_Uratio = Uratio;
-	//_pAngle = (uint16_t*) malloc(sizeof(uint16_t));
+	Angle = 0;
 	if (_ShowLog)
 	{
 		Serial.println(F(LIBVERSION));
@@ -63,83 +52,29 @@ void ACpower3::init(uint16_t* pAngle, bool NeedCalibrate)
 		setup_ZeroCross(i);
 		DELAYx;
 	}
-	/*if (_phaseQty == 1)
-	{
-		_Iratio = Iratio;
-		_Uratio = Uratio;
-		if (NeedCalibrate) calibrate(SHIFT_CHECK_SAMPLES);
-		setup_ADC();
-		DELAYx;
-	} */
 	return;
 }
 
-void ACpower3::control()
-{	
-	if (xSemaphoreTake(smphRMS, 0) == pdTRUE)
-	{ 
-		CounterRMS++;
-		if (getI) Unow = sqrt(_U2summ / _Ucntr) * _Uratio;
-		else Inow = sqrt(_I2summ / _Icntr) * _Iratio;
-		
-		correctRMS();
-		Pnow = (uint16_t)(Inow * Unow);
-		
-		if (Pset > 0)
-		{
-			_angle += Pset - Pnow;
-			_angle = constrain(_angle, ANGLE_MIN, ANGLE_MAX - ANGLE_DELTA);
-		}
-		else _angle = ANGLE_MIN - 500;
-		
-		*_pAngle = _angle;
-		Angle = *_pAngle;
-		D(RMScore = xPortGetCoreID());
-		D(RMSprio = uxTaskPriorityGet(NULL));
-	}
-	return;
-}
-
-
-void ACpower3::setRMScorrection(float *pIcorr, float *pUcorr)
+void ACpower3::initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU1, uint8_t pinI2, uint8_t pinU2)
 {
-	_pIcorr = pIcorr;
-	_pUcorr = pUcorr;
-	_corrRMS = true;
+	_pinI[0] = pinI0;		// пин подключения детектора нуля.
+	_pinU[0] = pinU0;		// пин управляющий триаком. 
+	_pinI[1] = pinI1;		// пин подключения детектора нуля.
+	_pinU[1] = pinU1;		// пин управляющий триаком. 
+	_pinI[2] = pinI2;		// пин подключения детектора нуля.
+	_pinU[2] = pinU2;		// пин управляющий триаком. 
+	_useADC = true;
+	setRMSzerolevel(ZEROLEVEL_SAMPLES);
+	setup_ADC();
+	setRMSratio(0.02, 0.2);
 }
 
-void ACpower3::correctRMS()
-{
-	if (_corrRMS)
-	{
-		int n;
-		float X_head, X_tail;
-		
-		if ((getI) && (_pUcorr) && (Unow < 240))
-		{
-			X_head = Unow / 10;
-			n = (int)X_head;
-			X_tail = X_head - n;
-			float Ushift = *(_pUcorr + n) + (*(_pUcorr + n + 1) - *(_pUcorr + n)) * X_tail;
-			Unow += Ushift;
-		}
-
-		if ((!getI) && (_pIcorr) && (Inow < 16))
-		{
-			X_head = Inow;
-			n = (int)X_head;
-			X_tail = X_head - n;
-			float Ishift = *(_pIcorr + n) + (*(_pIcorr + n + 1) - *(_pIcorr + n)) * X_tail;
-			Inow += Ishift;
-		}
-	}
-}
 
 void ACpower3::stop()
 {
-	*_pAngle = 0;
+	Angle = 0;
 	delay(20);
-	if (_phaseQty == 1)
+	if (_useADC)
 	{
 		timerStop(timerADC);
 		timerDetachInterrupt(timerADC);
