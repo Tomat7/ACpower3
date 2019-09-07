@@ -49,8 +49,7 @@
 
 //#define DEBUG1
 //#define DEBUG2
-
-
+	
 class ACpower3
 {
 public:
