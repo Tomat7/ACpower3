@@ -95,7 +95,7 @@ void ACpower3::setRMSzerolevel(uint16_t Scntr)
 			PRINT(i);
 			PRINT(" I-meter on pin ");
 			PRINT(_pinI[i]);
-			PRINTF(", U-meter on pin ", _pinI[i]);
+			PRINTF(", U-meter on pin ", _pinU[i]);
 		}
 		
 		_Izerolevel[i] = get_ZeroLevel(_pinI[i], Scntr);
