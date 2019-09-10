@@ -18,17 +18,42 @@
 
 ACpower3::ACpower3()
 {
+	Pmax = POWER_MAX * 3;		// а надо ли??
+	_pinZCross[0] = PIN_ZC0;	// пин подключения детектора нуля.
+	_pinTriac[0] = PIN_TR0;		// пин управляющий триаком. 
+	_pinZCross[1] = PIN_ZC1;	
+	_pinTriac[1] = PIN_TR1;		
+	_pinZCross[2] = PIN_ZC2;	
+	_pinTriac[2] = PIN_TR2;		
+	_pinI[0] = PIN_I0;		// пин датчика тока.
+	_pinU[0] = PIN_U0;		// пин датчика напряжения. 
+	_pinI[1] = PIN_I1;		
+	_pinU[1] = PIN_U1;		
+	_pinI[2] = PIN_I2;		
+	_pinU[2] = PIN_U2;		
+	_useADC = true;
+	_ShowLog = true;
+	return;
 }
 
-ACpower3::ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinZC1, uint8_t pinTR1, uint8_t pinZC2, uint8_t pinTR2)
+ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
+					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
 {
 	Pmax = POWER_MAX * 3;		// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
 	_pinTriac[0] = pinTR0;		// пин управляющий триаком. 
-	_pinZCross[1] = pinZC1;		// пин подключения детектора нуля.
-	_pinTriac[1] = pinTR1;		// пин управляющий триаком. 
-	_pinZCross[2] = pinZC2;		// пин подключения детектора нуля.
-	_pinTriac[2] = pinTR2;		// пин управляющий триаком. 
+	_pinZCross[1] = pinZC1;		
+	_pinTriac[1] = pinTR1;		 
+	_pinZCross[2] = pinZC2;	
+	_pinTriac[2] = pinTR2;	
+	_pinI[0] = pinI0;		// пин датчика тока.
+	_pinU[0] = pinU0;		// пин датчика напряжения. 
+	_pinI[1] = pinI1;		
+	_pinU[1] = pinU1;		
+	_pinI[2] = pinI2;		
+	_pinU[2] = pinU2;		
+	_useADC = true;
 	_ShowLog = true;
 	return;
 }
@@ -55,15 +80,8 @@ void ACpower3::init()
 	return;
 }
 
-void ACpower3::initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU1, uint8_t pinI2, uint8_t pinU2)
+void ACpower3::initADC()
 {
-	_pinI[0] = pinI0;		// пин подключения детектора нуля.
-	_pinU[0] = pinU0;		// пин управляющий триаком. 
-	_pinI[1] = pinI1;		// пин подключения детектора нуля.
-	_pinU[1] = pinU1;		// пин управляющий триаком. 
-	_pinI[2] = pinI2;		// пин подключения детектора нуля.
-	_pinU[2] = pinU2;		// пин управляющий триаком. 
-	_useADC = true;
 	setRMSzerolevel(ZEROLEVEL_SAMPLES);
 	setup_ADC();
 	setRMSratio(0.02, 0.2);
