@@ -32,25 +32,22 @@
 #define U_ZERO 1931     //2113
 #define I_ZERO 1942     //1907
 
-// defail PINs config
+// default PINs config
 // phase 0
 #define PIN_ZC0 25  // детектор нуля
 #define PIN_TR0 26  // триак
 #define PIN_I0 36  // датчик тока
 #define PIN_U0 39  // датчик напряжения
-//#define PINS_PHASE0 PIN_ZC0, PIN_TR0, PIN_I0, PIN_U0
 // phase 1
 #define PIN_ZC1 14  // детектор нуля ??
 #define PIN_TR1 27  // триак 
 #define PIN_I1 32  // датчик тока
 #define PIN_U1 33  // датчик напряжения
-//#define PINS_PHASE1 PIN_ZC1, PIN_TR1, PIN_I1, PIN_U1
 // phase 2
 #define PIN_ZC2 13  // детектор нуля
 #define PIN_TR2 12  // триак ??
 #define PIN_I2 34  // датчик тока
 #define PIN_U2 35  // датчик напряжения
-//#define PINS_PHASE2 PIN_ZC2, PIN_TR2, PIN_I2, PIN_U2
 
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
@@ -68,19 +65,16 @@
 class ACpower3
 {
 public:
-	ACpower3();
-	//ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinZC1, uint8_t pinTR1, uint8_t pinZC2, uint8_t pinTR2);
-	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
-	 		uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
-			uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2);
-	//ACpower3(uint16_t Pm, uint8_t pinZeroCross, uint8_t pinTriac, uint8_t pinVoltage, uint8_t pinCurrent);
-	//ACpower3(uint16_t Pm, uint8_t pinZeroCross, uint8_t pinTriac, uint8_t pinVoltage, uint8_t pinCurrent, bool ShowLog);
+	ACpower3(); // default PINs config will be used. see #define above.
 	
+	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
+	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2);
+		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
-
-	uint16_t P[3];
-	uint16_t Pnow;
+	uint16_t P[3];		// мощность по каждой фазе
+	uint16_t Pnow;		// суммарная мощность
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
 	
@@ -114,8 +108,10 @@ public:
 	void setRMScorrection(float *pIcorr, float *pUcorr);
 	//static void CloseTriac_int(); //__attribute__((always_inline));
 
-	volatile static uint32_t _Icntr;
-	volatile static uint32_t _Ucntr;
+	//volatile static 
+	uint32_t _Icntr;
+	//volatile static 
+	uint32_t _Ucntr;
 	
 	volatile static uint32_t _cntr;
 	//uint8_t PinTriac;

@@ -23,11 +23,13 @@ void ACpower3::control()
 		{	
 			I[_now] = sqrt(_summ / _cntr) * _Iratio;
 			getI = false;
+			_Icntr = _cntr;	// не нужно
 		}
 		else
 		{
 			U[_now] = sqrt(_summ / _cntr) * _Uratio;
 			getI = true;
+			_Ucntr = _cntr;	// для совместимости
 		}		
 		correctRMS();
 		P[_now] = (uint16_t)(I[_now] * U[_now]);
