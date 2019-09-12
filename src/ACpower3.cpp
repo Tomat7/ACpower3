@@ -37,8 +37,8 @@ ACpower3::ACpower3()
 }
 
 ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
-					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
-					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
+uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
 {
 	Pmax = POWER_MAX * 3;		// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
@@ -82,6 +82,14 @@ void ACpower3::init()
 
 void ACpower3::initADC()
 {
+	for (int i=0; i<3; i++)
+	{
+		pinMode(_pinI[i], INPUT);           // set pin to input
+		digitalWrite(_pinI[i], HIGH); 
+		pinMode(_pinU[i], INPUT);           // set pin to input
+		digitalWrite(_pinU[i], HIGH); 
+	}
+	
 	setRMSzerolevel(ZEROLEVEL_SAMPLES);
 	setup_ADC();
 	setRMSratio(0.02, 0.2);
@@ -92,11 +100,13 @@ void ACpower3::stop()
 {
 	Angle = 0;
 	delay(20);
+	
 	if (_useADC)
 	{
 		timerStop(timerADC);
 		timerDetachInterrupt(timerADC);
 	}
+	
 	for (int i=0; i<3; i++)
 	{
 		timerStop(timerTriac[i]);
@@ -121,8 +131,8 @@ void ACpower3::printConfig(uint8_t i)
 	Serial.print(_pinZCross[i]);
 	Serial.print(F(", Triac on pin "));
 	Serial.println(_pinTriac[i]);
-		
-/*		if (_phaseQty == 1)
+	
+	/*		if (_phaseQty == 1)
 		{
 			Serial.print(F(" . U-meter on pin "));
 			Serial.print(_pinU);

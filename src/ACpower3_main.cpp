@@ -49,12 +49,14 @@ void ACpower3::control()
 		
 		adcAttachPin(_pin);
 		_summ = 0;
-		Pnow = P[0] +  P[1] +  P[2];		
+		Pnow = P[0] +  P[1] +  P[2];
+		//Pnow = P[0]; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! test !!!!!!!!!!!!
 		adcStart(_pin);
 		
 		if (Pset > 0)
 		{
-			_angle += Pset - Pnow;
+			//int16_t Pdiff = Pset - Pnow;
+			_angle += (Pset - Pnow) / 4;
 			_angle = constrain(_angle, ANGLE_MIN, ANGLE_MAX - ANGLE_DELTA);
 		}
 		else _angle = ANGLE_MIN - 500;
