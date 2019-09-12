@@ -6,7 +6,7 @@
 
 Based on 1-phase regulator.  See here https://github.com/Tomat7/ACpower for more links and details.
 
-Current version not widely tested yet. :-)  See example ACpower-3phase-mini03 only.
+Current version not widely tested yet. :-)  See example "ACpower-3phase-mini03" only.
   
 Pinout for ESP32 Wemos Lolin32.
   
