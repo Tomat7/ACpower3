@@ -21,54 +21,44 @@
 
 #if defined(ESP32)
 
+// phase 0
 #define PIN_ZC0 25  // детектор нуля
 #define PIN_TR0 26  // триак
 #define PIN_I0 36  // датчик тока
 #define PIN_U0 39  // датчик напряжения
-
+#define PINS_PHASE0 PIN_ZC0, PIN_TR0, PIN_I0, PIN_U0
+// phase 1
 #define PIN_ZC1 14  // детектор нуля ??
 #define PIN_TR1 27  // триак 
 #define PIN_I1 32  // датчик тока
 #define PIN_U1 33  // датчик напряжения
-
+#define PINS_PHASE1 PIN_ZC1, PIN_TR1, PIN_I1, PIN_U1
+// phase 2
 #define PIN_ZC2 13  // детектор нуля
 #define PIN_TR2 12  // триак ??
 #define PIN_I2 34  // датчик тока
 #define PIN_U2 35  // датчик напряжения
+#define PINS_PHASE2 PIN_ZC2, PIN_TR2, PIN_I2, PIN_U2
 
 #else
 #error "Chip not supported. Use ESP32."
 #endif
 
-/*
-  ACpower(uint16_t Pm, byte pinZeroCross, byte pinTriac, byte pinVoltage, byte pinACS712)
-  Pm - максимальная мощность. регулятор не позволит установить мощность больше чем MAXPOWER
-  pinZeroCross - номер пина к которому подключен детектор нуля (2 или 3)
-  pinTriac - номер пина который управляет триаком (2-7)
-  pinVoltage - "имя" вывода к которому подключен "датчик напряжения" - трансформатор с обвязкой (A0-A7)
-  pinACS712 - "имя" вывода к которому подключен "датчик тока" - ACS712 (A0-A7)
-*/
-
-ACpower3 TEH = { PIN_ZC0, PIN_TR0, PIN_ZC1, PIN_TR1, PIN_ZC2, PIN_TR2 };
+ACpower3 TEH(PINS_PHASE0, PINS_PHASE1, PINS_PHASE2);
 
 uint16_t inst_P = 0;
 unsigned long msShow = 0;
 String Stext, Svar;
 uint16_t Angle = 0;
+int msWait;
 
 void setup()
 {
   Serial.begin(SERIALSPEED);
   delay(300);
   Serial.println(F(SKETCHVERSION));
-  /*
-    вызов с двумя параметрами - в этом случае задаётся коэффициент ACS712 или трансформатора тока,
-    вторым параметром идет множитель для напряжения - полезно если невозможно откалибровать подстроечником
-    и при изменении схемы позволяет использовать почти весь диапазон АЦП Ардуино
-  */
-
   TEH.init();
-  TEH.initADC(PIN_I0, PIN_U0, PIN_I1, PIN_U1, PIN_I2, PIN_U2); // для "ручного" режима не нужно
+  TEH.initADC(); // для "ручного" режима не нужно
   //ТЕН.setRMSratio(0.02, 0.2); // может понадобится если "зашитые" коэффициенты не подходят
   PRINTF(" _cntr2 ", TEH._cntr);
 }
@@ -89,8 +79,10 @@ void loop()
     В этом случае для расчета используются измеренные значение токов и напряжений
     АЦП должно быть скофигурированно по initADC(...)
   */
+  //msWait = random(90);
+  //delay(msWait);
 
-  if ((millis() - msShow + random(100)) > SHOWINTERVAL)
+  if ((millis() - msShow) > SHOWINTERVAL)
   {
     chkSerial();
     showInfo();
@@ -101,11 +93,12 @@ void loop()
 
 void showInfo()
 {
-  Serial.print("Angle: ");
-  Serial.println(Angle);
   //PRINTF("&Angle=", (uint32_t)&Angle, HEX);
+  PRINTF(" TEH.Pset: ", TEH.Pset);
+  PRINTF(" TEH.Pnow ", TEH.Pnow);
   PRINTF(" TEH.Angle: ", TEH.Angle);
   PRINTF(" TEH.CounterRMS: ", TEH.CounterRMS);
+  TEH.CounterRMS = 0;
   PRINTF(" TEH._cntr ", TEH._cntr);
 
   for (int i = 0; i < 3; i++)
@@ -121,11 +114,8 @@ void showInfo()
     PRINTF("  TEH.P: ", TEH.P[i]);
   }
 
-  PRINTF("  TEH.Pset: ", TEH.Pset);
-  PRINTF("  TEH.Pnow: ", TEH.Pnow);
   Serial.print("+++");
   Serial.println(millis());
-
 }
 
 void chkSerial()
@@ -137,12 +127,18 @@ void chkSerial()
     if (ch == '\n')
     {
       Svar.toUpperCase();
+      
       if (Svar.substring(0, 2) == "SP")
       {
         Stext = Svar.substring(Svar.indexOf("SP", 2) + 3); //команда
         inst_P = Stext.toFloat();          //Выставленная мощность с Serial
-        //TEH.setpower(inst_P);
+        TEH.setpower(inst_P);
       }
+      else if (Svar.substring(0, 3) == "RST")
+      {
+        ESP.restart();
+      }
+      
       Svar = "";
     }
   }

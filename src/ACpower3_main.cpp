@@ -23,11 +23,13 @@ void ACpower3::control()
 		{	
 			I[_now] = sqrt(_summ / _cntr) * _Iratio;
 			getI = false;
+			_Icntr = _cntr;	// не нужно
 		}
 		else
 		{
 			U[_now] = sqrt(_summ / _cntr) * _Uratio;
 			getI = true;
+			_Ucntr = _cntr;	// для совместимости
 		}		
 		correctRMS();
 		P[_now] = (uint16_t)(I[_now] * U[_now]);
@@ -47,12 +49,14 @@ void ACpower3::control()
 		
 		adcAttachPin(_pin);
 		_summ = 0;
-		Pnow = P[0] +  P[1] +  P[2];		
+		Pnow = P[0] +  P[1] +  P[2];
+		//Pnow = P[0]; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! test !!!!!!!!!!!!
 		adcStart(_pin);
 		
 		if (Pset > 0)
 		{
-			_angle += Pset - Pnow;
+			//int16_t Pdiff = Pset - Pnow;
+			_angle += (Pset - Pnow) / 4;
 			_angle = constrain(_angle, ANGLE_MIN, ANGLE_MAX - ANGLE_DELTA);
 		}
 		else _angle = ANGLE_MIN - 500;
