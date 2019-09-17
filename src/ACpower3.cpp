@@ -37,8 +37,8 @@ ACpower3::ACpower3()
 }
 
 ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
-uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
-uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
+					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
 {
 	Pmax = POWER_MAX * 3;		// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
@@ -82,17 +82,18 @@ void ACpower3::init()
 
 void ACpower3::initADC()
 {
-	for (int i=0; i<3; i++)
+	for (int i=0; i<3; i++)					// TEST!! наверное можно и без этого
 	{
 		pinMode(_pinI[i], INPUT);           // set pin to input
-		digitalWrite(_pinI[i], HIGH); 
+		//digitalWrite(_pinI[i], HIGH); 
 		pinMode(_pinU[i], INPUT);           // set pin to input
-		digitalWrite(_pinU[i], HIGH); 
+		//digitalWrite(_pinU[i], HIGH); 
 	}
 	
+	delay(20);
 	setRMSzerolevel(ZEROLEVEL_SAMPLES);
-	setup_ADC();
 	setRMSratio(0.02, 0.2);
+	setup_ADC();
 }
 
 
@@ -116,13 +117,7 @@ void ACpower3::stop()
 	}
 }
 
-void ACpower3::setpower(uint16_t setPower)
-{	
-	if (setPower > Pmax) Pset = Pmax;
-	else if (setPower < POWER_MIN) Pset = 0;
-	else Pset = setPower;
-	return;
-}
+
 
 
 void ACpower3::printConfig(uint8_t i)
@@ -131,16 +126,6 @@ void ACpower3::printConfig(uint8_t i)
 	Serial.print(_pinZCross[i]);
 	Serial.print(F(", Triac on pin "));
 	Serial.println(_pinTriac[i]);
-	
-	/*		if (_phaseQty == 1)
-		{
-			Serial.print(F(" . U-meter on pin "));
-			Serial.print(_pinU);
-			Serial.print(F(", I-meter on pin "));
-			Serial.println(_pinI);
-		}
-*/
-
 }
 
 #endif // ESP32
