@@ -72,6 +72,7 @@ void ACpower3::control()
 	return;
 }
 
+
 void ACpower3::control(uint16_t angle_)
 {	
 		
@@ -79,20 +80,6 @@ void ACpower3::control(uint16_t angle_)
 	return;
 }
 
-
-void ACpower3::setRMSratio(float Iratio, float Uratio)
-{  
-	_Iratio = Iratio;
-	_Uratio = Uratio;
-	return;
-}
-
-void ACpower3::setRMScorrection(float *pIcorr, float *pUcorr)
-{
-	_pIcorr = pIcorr;
-	_pUcorr = pUcorr;
-	_corrRMS = true;
-}
 
 void ACpower3::correctRMS()
 {
@@ -119,6 +106,14 @@ void ACpower3::correctRMS()
 			I[_now] += Ishift;
 		}
 	}
+}
+
+void ACpower3::setpower(uint16_t setPower)
+{	
+	if (setPower > Pmax) Pset = Pmax;
+	else if (setPower < POWER_MIN) Pset = 0;
+	else Pset = setPower;
+	return;
 }
 
 #endif // ESP32

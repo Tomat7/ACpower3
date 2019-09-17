@@ -113,6 +113,7 @@ void ACpower3::setRMSzerolevel(uint16_t Scntr)
 	return;
 }
 
+
 uint16_t ACpower3::get_ZeroLevel(uint8_t z_pin, uint16_t Scntr)
 {
 	uint32_t ZeroShift = 0;
@@ -123,11 +124,26 @@ uint16_t ACpower3::get_ZeroLevel(uint8_t z_pin, uint16_t Scntr)
 	{
 		ZeroShift += adcEnd(z_pin);
 		adcStart(z_pin);
-		delayMicroseconds(50);
+		delayMicroseconds(ZEROLEVEL_DELAY);
 	}
 	adcEnd(z_pin);
 	return (uint16_t)(ZeroShift / Scntr);
 }
 
+
+void ACpower3::setRMSratio(float Iratio, float Uratio)
+{  
+	_Iratio = Iratio;
+	_Uratio = Uratio;
+	return;
+}
+
+
+void ACpower3::setRMScorrection(float *pIcorr, float *pUcorr)
+{
+	_pIcorr = pIcorr;
+	_pUcorr = pUcorr;
+	_corrRMS = true;
+}
 
 #endif // ESP32

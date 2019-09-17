@@ -25,12 +25,12 @@
 #define ZC_EDGE RISING	// FALLING, RISING
 
 #define ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
-#define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн - 4
+#define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
 #define ADC_NOISE 20	// попробуем "понизить" шум АЦП
 #define ADC_COUNT (ADC_RATE * ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
 
-#define U_ZERO 1931     //2113
-#define I_ZERO 1942     //1907
+//#define U_ZERO 1931     //2113
+//#define I_ZERO 1942     //1907
 
 // default PINs config
 // phase 0
@@ -57,7 +57,8 @@
 
 #define TIMER_TRIAC 0
 #define TIMER_ADC 3
-#define ZEROLEVEL_SAMPLES 5000	// количество отсчетов для определения "нулевого" уровня
+#define ZEROLEVEL_SAMPLES 10000	// количество отсчетов для определения "нулевого" уровня
+#define ZEROLEVEL_DELAY 20		// интервал в микросекундах между отсчетами при определении "нулевого" уровня
 
 //#define DEBUG1
 //#define DEBUG2
