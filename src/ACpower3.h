@@ -28,6 +28,8 @@
 #define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
 #define ADC_NOISE 20	// попробуем "понизить" шум АЦП
 #define ADC_COUNT (ADC_RATE * ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
+#define ADC_I_RATIO 0.02	// значение по умолчанию
+#define ADC_U_RATIO 0.2 	// значение по умолчанию
 
 //#define U_ZERO 1931     //2113
 //#define I_ZERO 1942     //1907
@@ -52,8 +54,8 @@
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
 #define ANGLE_DELTA 100		// запас по времени для открытия триака
-#define POWER_MAX 3000		// больше этой мощности установить не получится
-#define POWER_MIN 50		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
+#define ACPOWER3_MAX 9000		// больше этой мощности установить не получится
+#define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
 #define TIMER_TRIAC 0
 #define TIMER_ADC 3
@@ -88,11 +90,12 @@ public:
 	volatile static uint32_t X2;
 	volatile static uint16_t Angle; 
 	
-	//void init(float Iratio, float Uratio);
 	//void init(float Iratio, float Uratio, bool NeedCalibrate);
 	//void init(float Iratio, float Uratio, uint8_t phaseN);	// 3-phase
 	//void init(uint16_t* pAngle, bool NeedCalibrate);			// 3-phas
 	void init();
+	void init(float Iratio, float Uratio);
+	
 	void initADC();
 	//void initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU1, uint8_t pinI2, uint8_t pinU2);
 
@@ -148,7 +151,7 @@ protected:
 	
 	int16_t _angle = 0;
 	//uint8_t _phaseQty;
-	uint8_t _now;		// current phase - ADC calculate THIS phase
+	uint8_t _phase;		// current phase - ADC calculate THIS phase
 	
 	float _Uratio;
 	float _Iratio;

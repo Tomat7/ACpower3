@@ -40,7 +40,7 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
 {
-	Pmax = POWER_MAX * 3;		// а надо ли??
+	Pmax = ACPOWER3_MAX;		// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
 	_pinTriac[0] = pinTR0;		// пин управляющий триаком. 
 	_pinZCross[1] = pinZC1;		
@@ -58,6 +58,19 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 	return;
 }
 
+void ACpower3::init()
+{ 
+	init();
+	initADC();
+	setRMSratio(ADC_I_RATIO, ADC_U_RATIO);
+}
+
+void ACpower3::init(loat Iratio, float Uratio)
+{ 
+	init();
+	initADC();
+	setRMSratio(Iratio, Uratio);
+}
 
 void ACpower3::init()
 {  
@@ -92,7 +105,7 @@ void ACpower3::initADC()
 	
 	delay(20);
 	setRMSzerolevel(ZEROLEVEL_SAMPLES);
-	setRMSratio(0.02, 0.2);
+	// setRMSratio(ADC_I_RATIO, ADC_U_RATIO);
 	setup_ADC();
 }
 
