@@ -18,7 +18,7 @@
 
 ACpower3::ACpower3()
 {
-	Pmax = POWER_MAX * 3;		// а надо ли??
+	Pmax = ACPOWER3_MAX;		// а надо ли??
 	_pinZCross[0] = PIN_ZC0;	// пин подключения детектора нуля.
 	_pinTriac[0] = PIN_TR0;		// пин управляющий триаком. 
 	_pinZCross[1] = PIN_ZC1;	
@@ -60,26 +60,19 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 
 void ACpower3::init()
 { 
-	init();
-	initADC();
-	setRMSratio(ADC_I_RATIO, ADC_U_RATIO);
+	init(ADC_I_RATIO, ADC_U_RATIO);
 }
 
-void ACpower3::init(loat Iratio, float Uratio)
-{ 
-	init();
-	initADC();
-	setRMSratio(Iratio, Uratio);
-}
-
-void ACpower3::init()
+void ACpower3::init(float Iratio, float Uratio)
 {  
 	Angle = 0;
+	
 	if (_ShowLog)
 	{
 		Serial.println(F(LIBVERSION));
 		PRINTF(" + Pmax: ", Pmax);
 	}
+	
 	for (int i=0; i<3; i++)
 	{
 		
@@ -90,6 +83,10 @@ void ACpower3::init()
 		setup_ZeroCross(i);
 		DELAYx;
 	}
+	
+	initADC();
+	setRMSratio(Iratio, Uratio);
+	
 	return;
 }
 
@@ -98,14 +95,11 @@ void ACpower3::initADC()
 	for (int i=0; i<3; i++)					// TEST!! наверное можно и без этого
 	{
 		pinMode(_pinI[i], INPUT);           // set pin to input
-		//digitalWrite(_pinI[i], HIGH); 
 		pinMode(_pinU[i], INPUT);           // set pin to input
-		//digitalWrite(_pinU[i], HIGH); 
 	}
 	
 	delay(20);
 	setRMSzerolevel(ZEROLEVEL_SAMPLES);
-	// setRMSratio(ADC_I_RATIO, ADC_U_RATIO);
 	setup_ADC();
 }
 
