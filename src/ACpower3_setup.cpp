@@ -64,9 +64,9 @@ void ACpower3::setup_ADC()
 	smphRMS = xSemaphoreCreateBinary();
 	getI = true;
 	_cntr = ADC_COUNT;
-	_now = 0;
-	_pin = _pinI[_now];
-	_zerolevel = _Izerolevel[_now];
+	_phase = 0;
+	_pin = _pinI[_phase];
+	_zerolevel = _Izerolevel[_phase];
 	
 	timerADC = timerBegin(TIMER_ADC, 80, true);
 	timerAttachInterrupt(timerADC, &GetADC_int, true);

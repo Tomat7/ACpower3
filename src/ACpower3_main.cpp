@@ -21,30 +21,30 @@ void ACpower3::control()
 		
 		if (getI) 
 		{	
-			I[_now] = sqrt(_summ / _cntr) * _Iratio;
+			I[_phase] = sqrt(_summ / _cntr) * _Iratio;
 			getI = false;
 			_Icntr = _cntr;	// не нужно
 		}
 		else
 		{
-			U[_now] = sqrt(_summ / _cntr) * _Uratio;
+			U[_phase] = sqrt(_summ / _cntr) * _Uratio;
 			getI = true;
 			_Ucntr = _cntr;	// для совместимости
 		}		
 		correctRMS();
-		P[_now] = (uint16_t)(I[_now] * U[_now]);
+		P[_phase] = (uint16_t)(I[_phase] * U[_phase]);
 		
 		if (getI)
 		{
-			_now++;
-			if (_now == 3) _now = 0;
-			_pin = _pinI[_now];
-			_zerolevel = _Izerolevel[_now];
+			_phase++;
+			if (_phase == 3) _phase = 0;
+			_pin = _pinI[_phase];
+			_zerolevel = _Izerolevel[_phase];
 		}
 		else
 		{
-			_pin = _pinU[_now];
-			_zerolevel = _Uzerolevel[_now];
+			_pin = _pinU[_phase];
+			_zerolevel = _Uzerolevel[_phase];
 		}
 		
 		adcAttachPin(_pin);
@@ -88,22 +88,22 @@ void ACpower3::correctRMS()
 		int n;
 		float X_head, X_tail;
 		
-		if ((getI) && (_pUcorr) && (U[_now] < 240))
+		if ((getI) && (_pUcorr) && (U[_phase] < 240))
 		{
-			X_head = U[_now] / 10;
+			X_head = U[_phase] / 10;
 			n = (int)X_head;
 			X_tail = X_head - n;
 			float Ushift = *(_pUcorr + n) + (*(_pUcorr + n + 1) - *(_pUcorr + n)) * X_tail;
-			U[_now] += Ushift;
+			U[_phase] += Ushift;
 		}
 
-		if ((!getI) && (_pIcorr) && (I[_now] < 16))
+		if ((!getI) && (_pIcorr) && (I[_phase] < 16))
 		{
-			X_head = I[_now];
+			X_head = I[_phase];
 			n = (int)X_head;
 			X_tail = X_head - n;
 			float Ishift = *(_pIcorr + n) + (*(_pIcorr + n + 1) - *(_pIcorr + n)) * X_tail;
-			I[_now] += Ishift;
+			I[_phase] += Ishift;
 		}
 	}
 }
@@ -111,7 +111,7 @@ void ACpower3::correctRMS()
 void ACpower3::setpower(uint16_t setPower)
 {	
 	if (setPower > Pmax) Pset = Pmax;
-	else if (setPower < POWER_MIN) Pset = 0;
+	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
 	return;
 }

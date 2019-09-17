@@ -57,8 +57,7 @@ void setup()
   Serial.begin(SERIALSPEED);
   delay(300);
   Serial.println(F(SKETCHVERSION));
-  TEH.init();
-  TEH.initADC(); // для "ручного" режима не нужно
+  TEH.init(); // = init() + initADC() + setRMSratio(0.02, 0.2)
   //ТЕН.setRMSratio(0.02, 0.2); // может понадобится если "зашитые" коэффициенты не подходят
   PRINTF(" _cntr2 ", TEH._cntr);
 }
