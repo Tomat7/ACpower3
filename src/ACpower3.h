@@ -19,7 +19,7 @@
 
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20190917 "
+#define LIBVERSION "ACpower3_v20190921 "
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
@@ -85,6 +85,7 @@ public:
 	volatile static uint32_t CounterTR[3];
 
 	uint32_t CounterRMS = 0;
+	String LibVersion = LIBVERSION;
 
 	volatile static int16_t Xnow;
 	volatile static uint32_t X2;

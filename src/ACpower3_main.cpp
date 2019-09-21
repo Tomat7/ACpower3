@@ -21,16 +21,19 @@ void ACpower3::control()
 		
 		if (getI) 
 		{	
-			I[_phase] = sqrt(_summ / _cntr) * _Iratio;
+			//I[_phase] = sqrt(_summ / _cntr) * _Iratio;
+			I[_phase] = sqrt(_summ / ADC_COUNT) * _Iratio;
 			getI = false;
 			_Icntr = _cntr;	// не нужно
 		}
 		else
 		{
-			U[_phase] = sqrt(_summ / _cntr) * _Uratio;
+			//U[_phase] = sqrt(_summ / _cntr) * _Uratio;
+			U[_phase] = sqrt(_summ / ADC_COUNT) * _Uratio;
 			getI = true;
 			_Ucntr = _cntr;	// для совместимости
-		}		
+		}
+		
 		correctRMS();
 		P[_phase] = (uint16_t)(I[_phase] * U[_phase]);
 		
@@ -50,7 +53,6 @@ void ACpower3::control()
 		adcAttachPin(_pin);
 		_summ = 0;
 		Pnow = P[0] +  P[1] +  P[2];
-		//Pnow = P[0]; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! test !!!!!!!!!!!!
 		adcStart(_pin);
 		
 		if (Pset > 0)
