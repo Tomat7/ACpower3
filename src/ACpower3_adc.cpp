@@ -72,11 +72,12 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 	}
 	else if (_cntr == ADC_COUNT)
 	{
-		xSemaphoreGiveFromISR(smphRMS, NULL);
+		adcEnd(_pin);
 		_cntr++;
+		xSemaphoreGiveFromISR(smphRMS, NULL);
 	}
 	
-	portEXIT_CRITICAL_ISR(&ACpower3::muxADC);
+	portEXIT_CRITICAL_ISR(&muxADC);
 	D(ADCcore = xPortGetCoreID());
 	D(ADCprio = uxTaskPriorityGet(NULL));
 	return;
