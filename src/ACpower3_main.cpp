@@ -52,13 +52,16 @@ void ACpower3::control()
 		
 		adcAttachPin(_pin);
 		_summ = 0;
+		Pold = Pprev;
+		Pprev = Pnow;
 		Pnow = P[0] +  P[1] +  P[2];
+		Pavg = (uint16_t)((Pnow + Pprev + Pold) / 3);
 		adcStart(_pin);
 		
 		if (Pset > 0)
 		{
 			//int16_t Pdiff = Pset - Pnow;
-			_angle += (Pset - Pnow) / 4;
+			_angle += (Pset - Pnow) / _lag;
 			_angle = constrain(_angle, ANGLE_MIN, ANGLE_MAX - ANGLE_DELTA);
 		}
 		else _angle = ANGLE_MIN - 500;
@@ -115,6 +118,13 @@ void ACpower3::setpower(uint16_t setPower)
 	if (setPower > Pmax) Pset = Pmax;
 	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
+	
+	float xP = abs((Pset / Pmax) - 0.5);
+	
+	if (xP > 0.2) _lag = 2;
+	else if (xP > 0.1) _lag = 3;
+	else _lag = 4;
+	
 	return;
 }
 

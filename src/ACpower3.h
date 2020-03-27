@@ -19,13 +19,13 @@
 
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20190921 "
+#define LIBVERSION "ACpower3_v20200125 "
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
 
-#define ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
-#define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
+#define ADC_RATE 400    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
+#define ADC_WAVES 8    // количество обсчитываемых ПОЛУволн 
 #define ADC_NOISE 20	// попробуем "понизить" шум АЦП
 #define ADC_COUNT (ADC_RATE * ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
 #define ADC_I_RATIO 0.02	// значение по умолчанию
@@ -54,7 +54,7 @@
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
 #define ANGLE_DELTA 100		// запас по времени для открытия триака
-#define ACPOWER3_MAX 9000		// больше этой мощности установить не получится
+#define ACPOWER3_MAX 3000		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
 #define TIMER_TRIAC 0
@@ -78,6 +78,7 @@ public:
 	float U[3];   		// переменная расчета RMS напряжения
 	uint16_t P[3];		// мощность по каждой фазе
 	uint16_t Pnow;		// суммарная мощность
+	uint16_t Pavg;		// среднее двух измерений
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
 	
@@ -141,7 +142,6 @@ protected:
 	uint8_t _pinU[3];
 	uint16_t _Izerolevel[3];
 	uint16_t _Uzerolevel[3];
-
 	
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
@@ -150,9 +150,11 @@ protected:
 	void correctRMS();
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);
 	
+	uint16_t Pprev = 0, Pold = 0;
 	int16_t _angle = 0;
 	//uint8_t _phaseQty;
 	uint8_t _phase;		// current phase - ADC calculate THIS phase
+	uint8_t _lag = 4;
 	
 	float _Uratio;
 	float _Iratio;
