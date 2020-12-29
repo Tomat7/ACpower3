@@ -85,31 +85,20 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 
 void ACpower3::setRMSzerolevel(uint16_t Scntr)
 {
-	PRINTLN(" + RMS calculating ZERO-shift for U and I...");
+	log_cfg_ln(" + RMS calculating ZERO-shift for U and I...");
 	Angle = 0;
 	for (int i = 0; i < 3; i++) 
 	{
-		if (_ShowLog)
-		{
-			
-			PRINT(" . ");
-			PRINT(i);
-			PRINT(" I-meter on pin ");
-			PRINT(_pinI[i]);
-			PRINTF(", U-meter on pin ", _pinU[i]);
-		}
+		log_cfg(" . ", i);
+		log_cfg(" I-meter on pin ", _pinI[i]);
+		log_cfg_f(", U-meter on pin ", _pinU[i]);
 		
 		_Izerolevel[i] = get_ZeroLevel(_pinI[i], Scntr);
 		_Uzerolevel[i] = get_ZeroLevel(_pinU[i], Scntr);
 
-		if (_ShowLog)
-		{
-			PRINT(" . ");
-			PRINT(i);
-			PRINT(" RMS ZeroLevel I: ");
-			PRINT(_Izerolevel[i]);
-			PRINTF(", U: ", _Uzerolevel[i]);
-		}
+		log_cfg(" . ", i);
+		log_cfg(" RMS ZeroLevel I: ", _Izerolevel[i]);
+		log_cfg_f(", U: ", _Uzerolevel[i]);
 	}
 	return;
 }

@@ -19,7 +19,7 @@
 
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20200125 "
+#define LIBVERSION "ACpower3_v20200125c " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
@@ -57,12 +57,13 @@
 #define ACPOWER3_MAX 3000		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
-#define TIMER_TRIAC 0
-#define TIMER_ADC 3
-#define ZEROLEVEL_SAMPLES 10000	// количество отсчетов для определения "нулевого" уровня
+//efine TIMER_TRIAC 0			// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
+#define TIMER_ADC 3				// номер таймера для АЦП
+#define ZEROLEVEL_SAMPLES 32000	// количество отсчетов для определения "нулевого" уровня
 #define ZEROLEVEL_DELAY 20		// интервал в микросекундах между отсчетами при определении "нулевого" уровня
 
-//#define DEBUG1
+//#define DEBUG0
+#define DEBUG1
 //#define DEBUG2
 	
 class ACpower3
@@ -73,6 +74,11 @@ public:
 	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2);
+	
+	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
+	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
+			 uint16_t pmax,	 bool useADC,	 bool showLog);
 		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
@@ -87,6 +93,7 @@ public:
 
 	uint32_t CounterRMS = 0;
 	String LibVersion = LIBVERSION;
+	String LibConfig;
 
 	volatile static int16_t Xnow;
 	volatile static uint32_t X2;
@@ -159,9 +166,9 @@ protected:
 	float _Uratio;
 	float _Iratio;
 	
-	bool _ShowLog;
+	bool _ShowLog = true;
+	bool _useADC = true;
 	bool _corrRMS = false;
-	bool _useADC = false;
 	
 	float *_pUcorr = NULL, *_pIcorr = NULL;
 	
@@ -182,8 +189,13 @@ protected:
 	volatile static uint64_t _U2summ;
 
 	//volatile static uint32_t _cntr;
-
 	volatile static uint16_t _zerolevel;
+
+	void log_cfg(String str0);
+	void log_cfg(String str0, uint16_t num1);
+	void log_cfg_ln(String str0);
+	void log_cfg_f(String str0, String str1);
+	void log_cfg_f(String str0, uint16_t num1);
 
 };
 

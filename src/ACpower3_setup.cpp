@@ -12,13 +12,9 @@
 
 void ACpower3::setup_Triac(uint8_t i)
 {
-	if (_ShowLog)
-	{
-		PRINT(" . ");
-		PRINT(i);
-		PRINT(" TRIAC on pin ");
-		PRINT(_pinTriac[i]);
-	}
+	log_cfg(" . ", i);
+	log_cfg(" TRIAC on pin ", _pinTriac[i]);
+
 	Angle = 0;
 	pinMode(_pinTriac[i], OUTPUT);
 	digitalWrite(_pinTriac[i], LOW);
@@ -31,19 +27,15 @@ void ACpower3::setup_Triac(uint8_t i)
 	timerAlarmWrite(timerTriac[i], (ANGLE_MAX + ANGLE_DELTA), true);
 	timerAlarmEnable(timerTriac[i]);
 	timerWrite(timerTriac[i], Angle);
-	if (_ShowLog) PRINTLN(" - OK");
+	log_cfg_ln(" - OK");
+	
 	return;
 }
 
 void ACpower3::setup_ZeroCross(uint8_t i)
 {
-	if (_ShowLog)
-	{
-		PRINT(" . ");
-		PRINT(i);
-		PRINT(" ZCross on pin ");
-		PRINT(_pinZCross[i]);
-	}
+	log_cfg(" . ", i);
+	log_cfg(" ZCross on pin ", _pinZCross[i]);
 	
 	//takeADC = false;
 	_msZCmillis[i] = millis();
@@ -52,8 +44,9 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 	if (i==0) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int0, ZC_EDGE);
 	else if (i==1) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int1, ZC_EDGE);
 	else if (i==2) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int2, ZC_EDGE);
-	
-	if (_ShowLog) PRINTLN(" - OK");
+
+	log_cfg_ln(" - OK");
+
 	return;
 }
 
@@ -74,15 +67,53 @@ void ACpower3::setup_ADC()
 	timerAlarmEnable(timerADC);
 	DELAYx;
 	
-	if (_ShowLog) 
-	{
-		PRINTLN(" + ADC Inerrupt setup OK");
-		PRINTF(" . ADC microSeconds between samples: ", usADCinterval);
-		PRINTF(" . ADC samples per half-wave: ", ADC_RATE);
-		PRINTF(" . ADC samples per calculation set: ", ADC_COUNT);
-		PRINTF(" . ADC half-waves per calculation set: ", ADC_WAVES);
-	}
+	log_cfg_ln(" + ADC Inerrupt setup OK");
+	log_cfg_f(" . ADC microSeconds between samples: ", usADCinterval);
+	log_cfg_f(" . ADC samples per half-wave: ", ADC_RATE);
+	log_cfg_f(" . ADC samples per calculation set: ", ADC_COUNT);
+	log_cfg_f(" . ADC half-waves per calculation set: ", ADC_WAVES);
+	
 	return;
+}
+
+
+void ACpower3::log_cfg(String str0)
+{
+#ifdef DEBUG0
+	if (_ShowLog) PRINT(str0);
+	LibConfig += str0;
+#endif // DEBUG0
+}
+
+void ACpower3::log_cfg(String str0, uint16_t num1)
+{
+#ifdef DEBUG0
+	log_cfg(str0);
+	log_cfg(String(num1));
+#endif // DEBUG0
+}
+
+void ACpower3::log_cfg_ln(String str0)
+{
+#ifdef DEBUG0
+	str0 += "\r\n";
+	log_cfg(str0);
+#endif // DEBUG0
+}
+
+void ACpower3::log_cfg_f(String str0, String str1)
+{
+#ifdef DEBUG0
+	log_cfg(str0);
+	log_cfg_ln(str1);
+#endif // DEBUG0
+}
+
+void ACpower3::log_cfg_f(String str0, uint16_t num1)
+{
+#ifdef DEBUG0
+	log_cfg_f(str0, String(num1));
+#endif // DEBUG0
 }
 
 #endif // ESP32
