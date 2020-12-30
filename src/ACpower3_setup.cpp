@@ -80,7 +80,9 @@ void ACpower3::setup_ADC()
 void ACpower3::log_cfg(String str0)
 {
 #ifdef DEBUG0
+#ifdef DEBUG1
 	if (_ShowLog) PRINT(str0);
+#endif
 	LibConfig += str0;
 #endif // DEBUG0
 }
