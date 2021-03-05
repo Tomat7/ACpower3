@@ -52,10 +52,20 @@ void ACpower3::control()
 		
 		adcAttachPin(_pin);
 		_summ = 0;
-		Pold = Pprev;
-		Pprev = Pnow;
+		
+		if (_phase == 0)
+		{
+			Pold = Pprev;
+			Pprev = Pnow;
+		}
+		
 		Pnow = P[0] +  P[1] +  P[2];
-		Pavg = (uint16_t)((Pnow + Pprev + Pold) / 3);
+		
+		if (_phase == 0) 
+		{ 
+			Pavg = (uint16_t)((Pnow + Pprev + Pold) / 3); 
+		}
+		
 		adcStart(_pin);
 		
 		if (Pset > 0)
