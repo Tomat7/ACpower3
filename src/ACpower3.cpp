@@ -1,7 +1,7 @@
 /*
-* Оригинальная идея (c) Sebra
-* Базовый алгоритм регулирования (c) Chatterbox
-* Алгоритм с привязкой расчетов к детектору нуля, поддержка ESP32 и перевод в библиотеку (c) Tomat7
+	* Оригинальная идея (c) Sebra
+	* Базовый алгоритм регулирования (c) Chatterbox
+	* Алгоритм с привязкой расчетов к детектору нуля, поддержка ESP32 и перевод в библиотеку (c) Tomat7
 */
 
 #include "Arduino.h"
@@ -58,20 +58,45 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 	return;
 }
 
+ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
+					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
+					uint16_t pmax,	bool useADC, 	bool showLog)
+{
+	Pmax = pmax;		// а надо ли??
+	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
+	_pinTriac[0] = pinTR0;		// пин управляющий триаком. 
+	_pinZCross[1] = pinZC1;		
+	_pinTriac[1] = pinTR1;		 
+	_pinZCross[2] = pinZC2;	
+	_pinTriac[2] = pinTR2;	
+	_pinI[0] = pinI0;		// пин датчика тока.
+	_pinU[0] = pinU0;		// пин датчика напряжения. 
+	_pinI[1] = pinI1;		
+	_pinU[1] = pinU1;		
+	_pinI[2] = pinI2;		
+	_pinU[2] = pinU2;		
+	_useADC = useADC;
+	_ShowLog = showLog;
+	return;
+}
+
+
 void ACpower3::init()
 { 
 	init(ADC_I_RATIO, ADC_U_RATIO);
 }
 
+
 void ACpower3::init(float Iratio, float Uratio)
 {  
 	Angle = 0;
 	
-	if (_ShowLog)
-	{
-		Serial.println(F(LIBVERSION));
-		PRINTF(" + Pmax: ", Pmax);
-	}
+	// Serial.println(F(LIBVERSION));
+	//	LibVersion = LIBVERSION;
+	log_cfg_ln(LIBVERSION);
+	log_cfg_f(" + Pmax: ", Pmax);
+	//PRINTF(" + Pmax: ", Pmax);
 	
 	for (int i=0; i<3; i++)
 	{
@@ -122,17 +147,22 @@ void ACpower3::stop()
 		detachInterrupt(digitalPinToInterrupt(_pinZCross[i]));
 		digitalWrite(_pinTriac[i], LOW);
 	}
+	
+	return;
 }
 
-
-
-
+/*
 void ACpower3::printConfig(uint8_t i)
 {
-	Serial.print(F(" . ZeroCross on pin "));
-	Serial.print(_pinZCross[i]);
-	Serial.print(F(", Triac on pin "));
-	Serial.println(_pinTriac[i]);
+	log_cfg(" . ZeroCross on pin ");
+	//Serial.print(F(" . ZeroCross on pin "));
+	log_cfg(String(_pinZCross[i]));
+	//Serial.print(_pinZCross[i]);
+	log_cfg(", Triac on pin ");
+	//Serial.print(F(", Triac on pin "));
+	log_cfg_ln(String(_pinTriac[i]));
+	//Serial.println(_pinTriac[i]);
 }
-
+*/
+	
 #endif // ESP32

@@ -17,15 +17,17 @@
 #ifndef ACpower3_h
 #define ACpower3_h
 
+#include "esp32-adc-nowait.h"
+
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20190921 "
+#define LIBVERSION "ACpower3_v20210319 " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
 
-#define ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
-#define ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
+#define ADC_RATE 400    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
+#define ADC_WAVES 8    // количество обсчитываемых ПОЛУволн 
 #define ADC_NOISE 20	// попробуем "понизить" шум АЦП
 #define ADC_COUNT (ADC_RATE * ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
 #define ADC_I_RATIO 0.02	// значение по умолчанию
@@ -54,15 +56,16 @@
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
 #define ANGLE_DELTA 100		// запас по времени для открытия триака
-#define ACPOWER3_MAX 9000		// больше этой мощности установить не получится
+#define ACPOWER3_MAX 3000		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
-#define TIMER_TRIAC 0
-#define TIMER_ADC 3
-#define ZEROLEVEL_SAMPLES 10000	// количество отсчетов для определения "нулевого" уровня
+//efine TIMER_TRIAC 0			// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
+#define TIMER_ADC 3				// номер таймера для АЦП
+#define ZEROLEVEL_SAMPLES 32000	// количество отсчетов для определения "нулевого" уровня
 #define ZEROLEVEL_DELAY 20		// интервал в микросекундах между отсчетами при определении "нулевого" уровня
 
-//#define DEBUG1
+//#define DEBUG0
+#define DEBUG1
 //#define DEBUG2
 	
 class ACpower3
@@ -73,11 +76,17 @@ public:
 	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2);
+	
+	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
+	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
+			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
+			 uint16_t pmax,	 bool useADC,	 bool showLog);
 		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
 	uint16_t P[3];		// мощность по каждой фазе
 	uint16_t Pnow;		// суммарная мощность
+	uint16_t Pavg;		// среднее двух измерений
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
 	
@@ -86,6 +95,7 @@ public:
 
 	uint32_t CounterRMS = 0;
 	String LibVersion = LIBVERSION;
+	String LibConfig;
 
 	volatile static int16_t Xnow;
 	volatile static uint32_t X2;
@@ -141,7 +151,6 @@ protected:
 	uint8_t _pinU[3];
 	uint16_t _Izerolevel[3];
 	uint16_t _Uzerolevel[3];
-
 	
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
@@ -150,16 +159,18 @@ protected:
 	void correctRMS();
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);
 	
+	uint16_t Pprev = 0, Pold = 0;
 	int16_t _angle = 0;
 	//uint8_t _phaseQty;
 	uint8_t _phase;		// current phase - ADC calculate THIS phase
+	uint8_t _lag = 4;
 	
 	float _Uratio;
 	float _Iratio;
 	
-	bool _ShowLog;
+	bool _ShowLog = true;
+	bool _useADC = true;
 	bool _corrRMS = false;
-	bool _useADC = false;
 	
 	float *_pUcorr = NULL, *_pIcorr = NULL;
 	
@@ -180,8 +191,13 @@ protected:
 	volatile static uint64_t _U2summ;
 
 	//volatile static uint32_t _cntr;
-
 	volatile static uint16_t _zerolevel;
+
+	void log_cfg(String str0);
+	void log_cfg(String str0, uint16_t num1);
+	void log_cfg_ln(String str0);
+	void log_cfg_f(String str0, String str1);
+	void log_cfg_f(String str0, uint16_t num1);
 
 };
 
