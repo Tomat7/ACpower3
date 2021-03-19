@@ -21,7 +21,7 @@
 
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20210305 " 
+#define LIBVERSION "ACpower3_v20210319 " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
