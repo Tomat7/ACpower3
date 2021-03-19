@@ -53,7 +53,7 @@ void ACpower3::control()
 		adcAttachPin(_pin);
 		_summ = 0;
 		
-		if (_phase == 0)
+		if (_phase == 0) 
 		{
 			Pold = Pprev;
 			Pprev = Pnow;

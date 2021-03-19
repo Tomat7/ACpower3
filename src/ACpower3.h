@@ -17,9 +17,11 @@
 #ifndef ACpower3_h
 #define ACpower3_h
 
+#include "esp32-adc-nowait.h"
+
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20200125c " 
+#define LIBVERSION "ACpower3_v20210305 " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE RISING	// FALLING, RISING
