@@ -1,8 +1,6 @@
-**Warning! Сurrent version working with ESP32 Arduino core v1.0.4!**
-Plan to update soon.
+**Warning! Сurrent version now working with ESP32 Arduino core v1.0.6 and upper.**
 
-**Внимание! Текущая версия работает с ESP32 Arduino core не выше версии 1.0.4!**
-Обновления уже в ветке Dev.
+**Внимание! Текущая версия уже работае с ESP32 Arduino core версии 1.0.6 и выше.**
 
 # ACpower3
  Three-phase AC power regulator on ESP32
