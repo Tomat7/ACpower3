@@ -19,18 +19,18 @@
 ACpower3::ACpower3()
 {
 	Pmax = ACPOWER3_MAX;		// а надо ли??
-	_pinZCross[0] = PIN_ZC0;	// пин подключения детектора нуля.
-	_pinTriac[0] = PIN_TR0;		// пин управляющий триаком. 
-	_pinZCross[1] = PIN_ZC1;	
-	_pinTriac[1] = PIN_TR1;		
-	_pinZCross[2] = PIN_ZC2;	
-	_pinTriac[2] = PIN_TR2;		
-	_pinI[0] = PIN_I0;		// пин датчика тока.
-	_pinU[0] = PIN_U0;		// пин датчика напряжения. 
-	_pinI[1] = PIN_I1;		
-	_pinU[1] = PIN_U1;		
-	_pinI[2] = PIN_I2;		
-	_pinU[2] = PIN_U2;		
+	_pinZCross[0] = PIN_LIB_ZC0;	// пин подключения детектора нуля.
+	_pinTriac[0] = PIN_LIB_TR0;		// пин управляющий триаком. 
+	_pinZCross[1] = PIN_LIB_ZC1;	
+	_pinTriac[1] = PIN_LIB_TR1;		
+	_pinZCross[2] = PIN_LIB_ZC2;	
+	_pinTriac[2] = PIN_LIB_TR2;		
+	_pinI[0] = PIN_LIB_I0;		// пин датчика тока.
+	_pinU[0] = PIN_LIB_U0;		// пин датчика напряжения. 
+	_pinI[1] = PIN_LIB_I1;		
+	_pinU[1] = PIN_LIB_U1;		
+	_pinI[2] = PIN_LIB_I2;		
+	_pinU[2] = PIN_LIB_U2;		
 	_useADC = true;
 	_ShowLog = true;
 	return;

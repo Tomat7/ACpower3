@@ -24,6 +24,8 @@ volatile uint16_t ACpower3::Angle;
 
 //volatile uint8_t ACpower3::_zero = 1;
 volatile uint32_t ACpower3::CounterZC[3];
+volatile uint32_t ACpower3::CounterZC_raw[3];
+volatile uint32_t ACpower3::_ZCcntr[3];
 //volatile uint32_t ACpower3::CounterTR;
 
 /*
@@ -55,12 +57,14 @@ volatile uint32_t ACpower3::_msZCmillis[3];
 void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 {
 	const uint8_t i = 0;
+	CounterZC_raw[i]++;
 	if ((millis() - _msZCmillis[i]) > 5)
 	{
 		timerStop(timerTriac[i]);
 		digitalWrite(_pinTriac[i], LOW);
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
+		_ZCcntr[i]++;
 				
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
@@ -72,13 +76,15 @@ void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 {
 	const uint8_t i = 1;
+	CounterZC_raw[i]++;
 	if ((millis() - _msZCmillis[i]) > 5)
 	{
 		timerStop(timerTriac[i]);
 		digitalWrite(_pinTriac[i], LOW);
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
-				
+		_ZCcntr[i]++;
+		
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
@@ -89,13 +95,15 @@ void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 void IRAM_ATTR ACpower3::ZeroCross_int2() //__attribute__((always_inline))
 {
 	const uint8_t i = 2;
+	CounterZC_raw[i]++;
 	if ((millis() - _msZCmillis[i]) > 5)
 	{
 		timerStop(timerTriac[i]);
 		digitalWrite(_pinTriac[i], LOW);
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
-				
+		_ZCcntr[i]++;
+		
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;

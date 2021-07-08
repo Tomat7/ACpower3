@@ -83,6 +83,8 @@ void ACpower3::control()
 		portENTER_CRITICAL(&muxADC);
 		_cntr = ADC_COUNT + 10;
 		portEXIT_CRITICAL(&muxADC);
+		
+		checkZC();
 	}
 	return;
 }
@@ -90,7 +92,7 @@ void ACpower3::control()
 
 void ACpower3::control(uint16_t angle_)
 {	
-		
+	
 	Angle = angle_;
 	return;
 }
@@ -136,6 +138,24 @@ void ACpower3::setpower(uint16_t setPower)
 	else _lag = 4;
 	
 	return;
+}
+
+void ACpower3::checkZC()
+{
+	for (int i=0; i<3; i++)
+	{
+		if (_ZCcntr[i] > 5) 
+		{ 
+			ZC[i] = true; 
+		}
+		else
+		{ 
+			ZC[i] = false;
+			timerStop(timerTriac[i]);
+			digitalWrite(_pinTriac[i], LOW);
+		}
+		_ZCcntr[i] = 0;
+	}
 }
 
 #endif // ESP32

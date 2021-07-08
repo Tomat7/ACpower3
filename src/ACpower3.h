@@ -17,14 +17,14 @@
 #ifndef ACpower3_h
 #define ACpower3_h
 
-#include "esp32-adc-nowait.h"
+#include "esp32-adc-nowait.h"	// necessary with Arduino ESP32 >= 1.0.6
 
 #if defined(ESP32)
 
 #define LIBVERSION "ACpower3_v20210319 " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
-#define ZC_EDGE RISING	// FALLING, RISING
+#define ZC_EDGE FALLING	// FALLING, RISING
 
 #define ADC_RATE 400    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
 #define ADC_WAVES 8    // количество обсчитываемых ПОЛУволн 
@@ -38,20 +38,20 @@
 
 // default PINs config
 // phase 0
-#define PIN_ZC0 25  // детектор нуля
-#define PIN_TR0 26  // триак
-#define PIN_I0 36  // датчик тока
-#define PIN_U0 39  // датчик напряжения
+#define PIN_LIB_ZC0 25  // детектор нуля
+#define PIN_LIB_TR0 26  // триак
+#define PIN_LIB_I0 36  // датчик тока
+#define PIN_LIB_U0 39  // датчик напряжения
 // phase 1
-#define PIN_ZC1 14  // детектор нуля ??
-#define PIN_TR1 27  // триак 
-#define PIN_I1 32  // датчик тока
-#define PIN_U1 33  // датчик напряжения
+#define PIN_LIB_ZC1 14  // детектор нуля ??
+#define PIN_LIB_TR1 27  // триак 
+#define PIN_LIB_I1 32  // датчик тока
+#define PIN_LIB_U1 33  // датчик напряжения
 // phase 2
-#define PIN_ZC2 13  // детектор нуля
-#define PIN_TR2 12  // триак ??
-#define PIN_I2 34  // датчик тока
-#define PIN_U2 35  // датчик напряжения
+#define PIN_LIB_ZC2 13  // детектор нуля
+#define PIN_LIB_TR2 12  // триак ??
+#define PIN_LIB_I2 34  // датчик тока
+#define PIN_LIB_U2 35  // датчик напряжения
 
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
@@ -61,7 +61,7 @@
 
 //efine TIMER_TRIAC 0			// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
 #define TIMER_ADC 3				// номер таймера для АЦП
-#define ZEROLEVEL_SAMPLES 32000	// количество отсчетов для определения "нулевого" уровня
+#define ZEROLEVEL_SAMPLES 10000	// количество отсчетов для определения "нулевого" уровня
 #define ZEROLEVEL_DELAY 20		// интервал в микросекундах между отсчетами при определении "нулевого" уровня
 
 //#define DEBUG0
@@ -89,10 +89,12 @@ public:
 	uint16_t Pavg;		// среднее двух измерений
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
+	bool ZC[3];
 	
+	volatile static uint32_t CounterZC_raw[3];
 	volatile static uint32_t CounterZC[3];
 	volatile static uint32_t CounterTR[3];
-
+	
 	uint32_t CounterRMS = 0;
 	String LibVersion = LIBVERSION;
 	String LibConfig;
@@ -116,6 +118,7 @@ public:
 	void stop();
 	void setpower(uint16_t setP);
 	void printConfig(uint8_t i);
+	void checkZC();
 	
 	void setRMSzerolevel();
 	void setRMSzerolevel(uint16_t Scntr);
@@ -146,6 +149,7 @@ protected:
 	
 	uint8_t _pinZCross[3];
 	volatile static uint32_t _msZCmillis[3];
+	volatile static uint32_t _ZCcntr[3];
 	
 	uint8_t _pinI[3];
 	uint8_t _pinU[3];
