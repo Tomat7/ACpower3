@@ -34,7 +34,7 @@ void ACpower3::control()
 			_Ucntr = _cntr;	// для совместимости
 		}
 		
-		correctRMS();
+		correct_RMS();
 		P[_phase] = (uint16_t)(I[_phase] * U[_phase]);
 		
 		if (getI)
@@ -84,7 +84,7 @@ void ACpower3::control()
 		_cntr = ADC_COUNT + 10;
 		portEXIT_CRITICAL(&muxADC);
 		
-		checkZC();
+		check_ZC();
 	}
 	return;
 }
@@ -97,8 +97,23 @@ void ACpower3::control(uint16_t angle_)
 	return;
 }
 
+void ACpower3::setpower(uint16_t setPower)
+{	
+	if (setPower > Pmax) Pset = Pmax;
+	else if (setPower < ACPOWER3_MIN) Pset = 0;
+	else Pset = setPower;
+	
+	float xP = abs((Pset / Pmax) - 0.5);
+	
+	if (xP > 0.2) _lag = 2;
+	else if (xP > 0.1) _lag = 3;
+	else _lag = 4;
+	
+	return;
+}
 
-void ACpower3::correctRMS()
+
+void ACpower3::correct_RMS()
 {
 	if (_corrRMS)
 	{
@@ -125,22 +140,8 @@ void ACpower3::correctRMS()
 	}
 }
 
-void ACpower3::setpower(uint16_t setPower)
-{	
-	if (setPower > Pmax) Pset = Pmax;
-	else if (setPower < ACPOWER3_MIN) Pset = 0;
-	else Pset = setPower;
-	
-	float xP = abs((Pset / Pmax) - 0.5);
-	
-	if (xP > 0.2) _lag = 2;
-	else if (xP > 0.1) _lag = 3;
-	else _lag = 4;
-	
-	return;
-}
 
-void ACpower3::checkZC()
+void ACpower3::check_ZC()
 {
 	for (int i=0; i<3; i++)
 	{

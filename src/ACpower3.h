@@ -21,7 +21,7 @@
 
 #if defined(ESP32)
 
-#define LIBVERSION "ACpower3_v20210319 " 
+#define LIBVERSION "ACpower3_v20210709 " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ZC_EDGE FALLING	// FALLING, RISING
@@ -56,7 +56,7 @@
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
 #define ANGLE_DELTA 100		// запас по времени для открытия триака
-#define ACPOWER3_MAX 3000		// больше этой мощности установить не получится
+#define ACPOWER3_MAX 3500		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
 //efine TIMER_TRIAC 0			// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
@@ -80,7 +80,7 @@ public:
 	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
-			 uint16_t pmax,	 bool useADC,	 bool showLog);
+			 uint16_t pmax);
 		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
@@ -103,27 +103,19 @@ public:
 	volatile static uint32_t X2;
 	volatile static uint16_t Angle; 
 	
-	//void init(float Iratio, float Uratio, bool NeedCalibrate);
-	//void init(float Iratio, float Uratio, uint8_t phaseN);	// 3-phase
-	//void init(uint16_t* pAngle, bool NeedCalibrate);			// 3-phas
+	void init(float Iratio, float Uratio, float *pIcorr, float *pUcorr); // all in one
 	void init();
-	void init(float Iratio, float Uratio);
-	
 	void initADC();
-	//void initADC(uint8_t pinI0, uint8_t pinU0, uint8_t pinI1, uint8_t pinU1, uint8_t pinI2, uint8_t pinU2);
-
+	void setupADCratio(float Iratio, float Uratio);
+	void setupRMScorrection(float *pIcorr, float *pUcorr);
+	
 	void control();					// 
 	void control(uint16_t angle_);  // для "ручного" управления триаком - MIN=0, MAX=10000. Без стабилизации!!
-	//void check();
+
 	void stop();
 	void setpower(uint16_t setP);
 	void printConfig(uint8_t i);
-	void checkZC();
 	
-	void setRMSzerolevel();
-	void setRMSzerolevel(uint16_t Scntr);
-	void setRMSratio(float Iratio, float Uratio);
-	void setRMScorrection(float *pIcorr, float *pUcorr);
 	//static void CloseTriac_int(); //__attribute__((always_inline));
 
 	//volatile static 
@@ -158,9 +150,12 @@ protected:
 	
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
-	
 	void setup_ADC();
-	void correctRMS();
+	void setup_ADCzerolevel(uint16_t Scntr);
+	
+	void correct_RMS();
+	void check_ZC();
+	
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);
 	
 	uint16_t Pprev = 0, Pold = 0;
@@ -172,8 +167,6 @@ protected:
 	float _Uratio;
 	float _Iratio;
 	
-	bool _ShowLog = true;
-	bool _useADC = true;
 	bool _corrRMS = false;
 	
 	float *_pUcorr = NULL, *_pIcorr = NULL;

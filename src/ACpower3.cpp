@@ -31,8 +31,6 @@ ACpower3::ACpower3()
 	_pinU[1] = PIN_LIB_U1;		
 	_pinI[2] = PIN_LIB_I2;		
 	_pinU[2] = PIN_LIB_U2;		
-	_useADC = true;
-	_ShowLog = true;
 	return;
 }
 
@@ -53,15 +51,13 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 	_pinU[1] = pinU1;		
 	_pinI[2] = pinI2;		
 	_pinU[2] = pinU2;		
-	_useADC = true;
-	_ShowLog = true;
 	return;
 }
 
 ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
-					uint16_t pmax,	bool useADC, 	bool showLog)
+					uint16_t pmax)
 {
 	Pmax = pmax;		// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
@@ -76,43 +72,33 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 	_pinU[1] = pinU1;		
 	_pinI[2] = pinI2;		
 	_pinU[2] = pinU2;		
-	_useADC = useADC;
-	_ShowLog = showLog;
 	return;
 }
 
 
-void ACpower3::init()
-{ 
-	init(ADC_I_RATIO, ADC_U_RATIO);
+void ACpower3::init(float Iratio, float Uratio, float *pIcorr, float *pUcorr)
+{  
+	init();
+	initADC();
+	setupADCratio(Iratio, Uratio);
+	setupRMScorrection(pIcorr, pUcorr);
 }
 
-
-void ACpower3::init(float Iratio, float Uratio)
-{  
+void ACpower3::init()
+{ 
 	Angle = 0;
 	
-	// Serial.println(F(LIBVERSION));
-	//	LibVersion = LIBVERSION;
 	log_cfg_ln(LIBVERSION);
 	log_cfg_f(" + Pmax: ", Pmax);
-	//PRINTF(" + Pmax: ", Pmax);
 	
 	for (int i=0; i<3; i++)
 	{
-		
-		//if (_ShowLog) printConfig(i);
 		DELAYx;
 		setup_Triac(i);
 		DELAYx;
 		setup_ZeroCross(i);
 		DELAYx;
 	}
-	
-	initADC();
-	setRMSratio(Iratio, Uratio);
-	
-	return;
 }
 
 void ACpower3::initADC()
@@ -124,21 +110,32 @@ void ACpower3::initADC()
 	}
 	
 	delay(20);
-	setRMSzerolevel(ZEROLEVEL_SAMPLES);
+	setup_ADCzerolevel(ZEROLEVEL_SAMPLES);
 	setup_ADC();
 }
 
+void ACpower3::setupADCratio(float Iratio, float Uratio)
+{  
+	_Iratio = Iratio;
+	_Uratio = Uratio;
+	return;
+}
+
+void ACpower3::setupRMScorrection(float *pIcorr, float *pUcorr)
+{
+	_pIcorr = pIcorr;
+	_pUcorr = pUcorr;
+	_corrRMS = true;
+	return;
+}
 
 void ACpower3::stop()
 {
 	Angle = 0;
 	delay(20);
-	
-	if (_useADC)
-	{
-		timerStop(timerADC);
-		timerDetachInterrupt(timerADC);
-	}
+
+	timerStop(timerADC);
+	timerDetachInterrupt(timerADC);
 	
 	for (int i=0; i<3; i++)
 	{
@@ -151,18 +148,5 @@ void ACpower3::stop()
 	return;
 }
 
-/*
-void ACpower3::printConfig(uint8_t i)
-{
-	log_cfg(" . ZeroCross on pin ");
-	//Serial.print(F(" . ZeroCross on pin "));
-	log_cfg(String(_pinZCross[i]));
-	//Serial.print(_pinZCross[i]);
-	log_cfg(", Triac on pin ");
-	//Serial.print(F(", Triac on pin "));
-	log_cfg_ln(String(_pinTriac[i]));
-	//Serial.println(_pinTriac[i]);
-}
-*/
 	
 #endif // ESP32
