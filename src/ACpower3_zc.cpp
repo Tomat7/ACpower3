@@ -28,6 +28,8 @@ volatile uint32_t ACpower3::CounterZC_raw[3];
 volatile uint32_t ACpower3::_ZCcntr[3];
 //volatile uint32_t ACpower3::CounterTR;
 
+volatile uint8_t ACpower3::_phase;
+
 /*
 volatile uint8_t ACpower3::_pin;
 uint8_t ACpower3::_pinI;
@@ -46,7 +48,7 @@ volatile uint64_t ACpower3::_U2summ = 0;
 
 volatile uint16_t ACpower3::_zerolevel = 0;
 */
-	
+
 /*
 uint16_t ACpower3::_Izerolevel = 0;
 uint16_t ACpower3::_Uzerolevel = 0;
@@ -65,10 +67,17 @@ void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 		_msZCmillis[i] = millis();
 		CounterZC[i]++;
 		_ZCcntr[i]++;
-				
+		
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
+		
+		if (_phase == i) 
+		{
+			portENTER_CRITICAL(&muxADC);
+			if (CounterADC == (ADC_COUNT + 5)) { CounterADC = ADC_COUNT + 10; }
+			portEXIT_CRITICAL(&muxADC);
+		}
 	}
 	return;
 }
@@ -88,6 +97,13 @@ void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
+		
+		if (_phase == i) 
+		{
+			portENTER_CRITICAL(&muxADC);
+			if (CounterADC == (ADC_COUNT + 5)) { CounterADC = ADC_COUNT + 10; }
+			portEXIT_CRITICAL(&muxADC);
+		}
 	}
 	return;
 }
@@ -107,6 +123,13 @@ void IRAM_ATTR ACpower3::ZeroCross_int2() //__attribute__((always_inline))
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
+		
+		if (_phase == i) 
+		{
+			portENTER_CRITICAL(&muxADC);
+			if (CounterADC == (ADC_COUNT + 5)) { CounterADC = ADC_COUNT + 10; }
+			portEXIT_CRITICAL(&muxADC);
+		}
 	}
 	return;
 }

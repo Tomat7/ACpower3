@@ -81,7 +81,8 @@ void ACpower3::control()
 		D(RMSprio = uxTaskPriorityGet(NULL));
 		
 		portENTER_CRITICAL(&muxADC);
-		CounterADC = ADC_COUNT + 10;
+		if (ZC[_phase]) { CounterADC = ADC_COUNT + 5; }
+		else { CounterADC = ADC_COUNT + 10; }
 		portEXIT_CRITICAL(&muxADC);
 		
 		check_ZC();

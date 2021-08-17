@@ -159,8 +159,6 @@ protected:
 	
 	uint16_t Pprev = 0, Pold = 0;
 	int16_t _angle = 0;
-	//uint8_t _phaseQty;
-	uint8_t _phase;		// current phase - ADC calculate THIS phase
 	float _lag = 5.0;
 	
 	float _Uratio;
@@ -180,6 +178,7 @@ protected:
 
 	volatile static uint8_t _zero;
 	volatile static uint8_t _pin;
+	volatile static uint8_t _phase;		// current phase - ADC calculate THIS phase
 	
 	//volatile static uint16_t* _pAngle;
 	volatile static uint64_t _summ;
