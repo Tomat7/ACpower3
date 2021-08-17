@@ -30,11 +30,11 @@
 #define ADC_WAVES 8    // количество обсчитываемых ПОЛУволн 
 #define ADC_NOISE 20	// попробуем "понизить" шум АЦП
 #define ADC_COUNT (ADC_RATE * ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
-#define ADC_I_RATIO 0.02	// значение по умолчанию
-#define ADC_U_RATIO 0.2 	// значение по умолчанию
+#define ADC_TIMER 3		// номер таймера для АЦП
+//define TRIAC_TIMER 0	// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
 
-//#define U_ZERO 1931     //2113
-//#define I_ZERO 1942     //1907
+//#define ADC_I_RATIO 0.02	// значение по умолчанию
+//#define ADC_U_RATIO 0.2 	// значение по умолчанию
 
 // default PINs config
 // phase 0
@@ -56,11 +56,10 @@
 #define ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
 #define ANGLE_DELTA 100		// запас по времени для открытия триака
+#define ANGLE_MIDDLE 5000	// экспериментально...
 #define ACPOWER3_MAX 3500		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
-//efine TIMER_TRIAC 0			// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
-#define TIMER_ADC 3				// номер таймера для АЦП
 #define ZEROLEVEL_SAMPLES 10000	// количество отсчетов для определения "нулевого" уровня
 #define ZEROLEVEL_DELAY 20		// интервал в микросекундах между отсчетами при определении "нулевого" уровня
 
@@ -104,7 +103,7 @@ public:
 	volatile static uint16_t Angle; 
 	
 	void init(float Iratio, float Uratio, float *pIcorr, float *pUcorr); // all in one
-	void init();
+	void initTR();
 	void initADC();
 	void setupADCratio(float Iratio, float Uratio);
 	void setupRMScorrection(float *pIcorr, float *pUcorr);
@@ -123,7 +122,7 @@ public:
 	//volatile static 
 	uint32_t _Ucntr;
 	
-	volatile static uint32_t _cntr;
+	volatile static uint32_t CounterADC;
 	//uint8_t PinTriac;
 
 protected:
@@ -162,7 +161,7 @@ protected:
 	int16_t _angle = 0;
 	//uint8_t _phaseQty;
 	uint8_t _phase;		// current phase - ADC calculate THIS phase
-	uint8_t _lag = 4;
+	float _lag = 5.0;
 	
 	float _Uratio;
 	float _Iratio;
@@ -187,7 +186,7 @@ protected:
 	volatile static uint64_t _I2summ;
 	volatile static uint64_t _U2summ;
 
-	//volatile static uint32_t _cntr;
+	//volatile static uint32_t CounterADC;
 	volatile static uint16_t _zerolevel;
 
 	void log_cfg(String str0);

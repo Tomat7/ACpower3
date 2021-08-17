@@ -78,13 +78,13 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 
 void ACpower3::init(float Iratio, float Uratio, float *pIcorr, float *pUcorr)
 {  
-	init();
+	initTR();
 	initADC();
 	setupADCratio(Iratio, Uratio);
 	setupRMScorrection(pIcorr, pUcorr);
 }
 
-void ACpower3::init()
+void ACpower3::initTR()
 { 
 	Angle = 0;
 	

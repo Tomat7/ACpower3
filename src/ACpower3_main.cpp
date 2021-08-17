@@ -17,21 +17,21 @@ void ACpower3::control()
 	{ 
 		CounterRMS++;
 		
-		//PRINTF((uint32_t)_summ, _cntr);
+		//PRINTF((uint32_t)_summ, CounterADC);
 		
 		if (getI) 
 		{	
-			//I[_phase] = sqrt(_summ / _cntr) * _Iratio;
+			//I[_phase] = sqrt(_summ / CounterADC) * _Iratio;
 			I[_phase] = sqrt(_summ / ADC_COUNT) * _Iratio;
 			getI = false;
-			_Icntr = _cntr;	// не нужно
+			_Icntr = CounterADC;	// не нужно
 		}
 		else
 		{
-			//U[_phase] = sqrt(_summ / _cntr) * _Uratio;
+			//U[_phase] = sqrt(_summ / CounterADC) * _Uratio;
 			U[_phase] = sqrt(_summ / ADC_COUNT) * _Uratio;
 			getI = true;
-			_Ucntr = _cntr;	// для совместимости
+			_Ucntr = CounterADC;	// для совместимости
 		}
 		
 		correct_RMS();
@@ -81,7 +81,7 @@ void ACpower3::control()
 		D(RMSprio = uxTaskPriorityGet(NULL));
 		
 		portENTER_CRITICAL(&muxADC);
-		_cntr = ADC_COUNT + 10;
+		CounterADC = ADC_COUNT + 10;
 		portEXIT_CRITICAL(&muxADC);
 		
 		check_ZC();
@@ -102,13 +102,15 @@ void ACpower3::setpower(uint16_t setPower)
 	if (setPower > Pmax) Pset = Pmax;
 	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
+	_lag = 1 / (0.3 + (abs(ANGLE_MIDDLE - Angle) / 10000));
+//	_lag = 1;
 	
+/*
 	float xP = abs((Pset / Pmax) - 0.5);
-	
 	if (xP > 0.2) _lag = 2;
 	else if (xP > 0.1) _lag = 3;
 	else _lag = 4;
-	
+*/	
 	return;
 }
 

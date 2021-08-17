@@ -34,7 +34,7 @@ uint8_t ACpower3::_pinTriac;
 //uint8_t ACpower3::_pinZCross;
 */
 
-volatile uint32_t ACpower3::_cntr = 1;
+volatile uint32_t ACpower3::CounterADC = 1;
 //volatile uint32_t ACpower3::_Icntr = 1;
 //volatile uint32_t ACpower3::_Ucntr = 1;
 
@@ -55,25 +55,25 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 {
 	portENTER_CRITICAL_ISR(&muxADC);
 	
-	if (_cntr < ADC_COUNT)
+	if (CounterADC < ADC_COUNT)
 	{
 		Xnow = adcEnd(_pin) - _zerolevel;
 		X2 = Xnow * Xnow;
 		if (X2 < ADC_NOISE) X2 = 0;
 		_summ += X2;
-		_cntr++;
+		CounterADC++;
 		adcStart(_pin);
 	}
-	else if (_cntr == (ADC_COUNT + 10))
+	else if (CounterADC == (ADC_COUNT + 10))
 	{
 		adcEnd(_pin);
-		_cntr = 0;
+		CounterADC = 0;
 		adcStart(_pin);
 	}
-	else if (_cntr == ADC_COUNT)
+	else if (CounterADC == ADC_COUNT)
 	{
 		adcEnd(_pin);
-		_cntr++;
+		CounterADC++;
 		xSemaphoreGiveFromISR(smphRMS, NULL);
 	}
 	

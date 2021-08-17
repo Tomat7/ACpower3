@@ -36,7 +36,7 @@ uint8_t ACpower3::_pinTriac;
 //uint8_t ACpower3::_pinZCross;
 */
 /*	
-volatile uint32_t ACpower3::_cntr = 1;
+volatile uint32_t ACpower3::CounterADC = 1;
 volatile uint32_t ACpower3::_Icntr = 1;
 volatile uint32_t ACpower3::_Ucntr = 1;
 
