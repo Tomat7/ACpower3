@@ -34,7 +34,7 @@ uint8_t ACpower3::_pinTriac;
 //uint8_t ACpower3::_pinZCross;
 */
 
-volatile uint32_t ACpower3::_cntr = 1;
+volatile uint32_t ACpower3::CounterADC = 1;
 //volatile uint32_t ACpower3::_Icntr = 1;
 //volatile uint32_t ACpower3::_Ucntr = 1;
 
@@ -55,37 +55,25 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 {
 	portENTER_CRITICAL_ISR(&muxADC);
 	
-<<<<<<< Updated upstream
-	if (_cntr < ADC_COUNT)
-=======
 	if (CounterADC < ACPOWER3_ADC_SAMPLES)
->>>>>>> Stashed changes
 	{
 		Xnow = adcEnd(_pin) - _zerolevel;
 		X2 = Xnow * Xnow;
 		if (X2 < ACPOWER3_ADC_NOISE) X2 = 0;
 		_summ += X2;
-		_cntr++;
+		CounterADC++;
 		adcStart(_pin);
 	}
-<<<<<<< Updated upstream
-	else if (_cntr == (ADC_COUNT + 10))
-=======
 	else if (CounterADC == ACPOWER3_ADC_START)
->>>>>>> Stashed changes
 	{
 		adcEnd(_pin);
-		_cntr = 0;
+		CounterADC = 0;
 		adcStart(_pin);
 	}
-<<<<<<< Updated upstream
-	else if (_cntr == ADC_COUNT)
-=======
 	else if (CounterADC == ACPOWER3_ADC_SAMPLES)
->>>>>>> Stashed changes
 	{
 		adcEnd(_pin);
-		_cntr++;
+		CounterADC++;
 		xSemaphoreGiveFromISR(smphRMS, NULL);
 	}
 	
@@ -95,7 +83,7 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 	return;
 }
 
-void ACpower3::setRMSzerolevel(uint16_t Scntr)
+void ACpower3::setup_ADCzerolevel(uint16_t Scntr)
 {
 	log_cfg_ln(" + RMS calculating ZERO-shift for U and I...");
 	Angle = 0;
@@ -132,20 +120,5 @@ uint16_t ACpower3::get_ZeroLevel(uint8_t z_pin, uint16_t Scntr)
 	return (uint16_t)(ZeroShift / Scntr);
 }
 
-
-void ACpower3::setRMSratio(float Iratio, float Uratio)
-{  
-	_Iratio = Iratio;
-	_Uratio = Uratio;
-	return;
-}
-
-
-void ACpower3::setRMScorrection(float *pIcorr, float *pUcorr)
-{
-	_pIcorr = pIcorr;
-	_pUcorr = pUcorr;
-	_corrRMS = true;
-}
 
 #endif // ESP32

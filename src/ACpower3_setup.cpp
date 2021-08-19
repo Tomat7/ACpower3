@@ -56,20 +56,12 @@ void ACpower3::setup_ADC()
 	uint16_t usADCinterval = (uint16_t)(10000 / ACPOWER3_ADC_RATE);
 	smphRMS = xSemaphoreCreateBinary();
 	getI = true;
-<<<<<<< Updated upstream
-	_cntr = ADC_COUNT;
-=======
 	CounterADC = ACPOWER3_ADC_SAMPLES;
->>>>>>> Stashed changes
 	_phase = 0;
 	_pin = _pinI[_phase];
 	_zerolevel = _Izerolevel[_phase];
 	
-<<<<<<< Updated upstream
-	timerADC = timerBegin(TIMER_ADC, 80, true);
-=======
 	timerADC = timerBegin(ACPOWER3_ADC_TIMER, 80, true);
->>>>>>> Stashed changes
 	timerAttachInterrupt(timerADC, &GetADC_int, true);
 	timerAlarmWrite(timerADC, usADCinterval, true);
 	timerAlarmEnable(timerADC);
@@ -89,7 +81,7 @@ void ACpower3::log_cfg(String str0)
 {
 #ifdef DEBUG0
 #ifdef DEBUG1
-	if (_ShowLog) PRINT(str0);
+	PRINT(str0);
 #endif
 	LibConfig += str0;
 #endif // DEBUG0

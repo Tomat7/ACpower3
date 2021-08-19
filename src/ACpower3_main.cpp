@@ -17,34 +17,24 @@ void ACpower3::control()
 	{ 
 		CounterRMS++;
 		
-		//PRINTF((uint32_t)_summ, _cntr);
+		//PRINTF((uint32_t)_summ, CounterADC);
 		
 		if (getI) 
 		{	
-<<<<<<< Updated upstream
-			//I[_phase] = sqrt(_summ / _cntr) * _Iratio;
-			I[_phase] = sqrt(_summ / ADC_COUNT) * _Iratio;
-=======
 			//I[_phase] = sqrt(_summ / CounterADC) * _Iratio;
 			I[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Iratio;
->>>>>>> Stashed changes
 			getI = false;
-			_Icntr = _cntr;	// не нужно
+			_Icntr = CounterADC;	// не нужно
 		}
 		else
 		{
-<<<<<<< Updated upstream
-			//U[_phase] = sqrt(_summ / _cntr) * _Uratio;
-			U[_phase] = sqrt(_summ / ADC_COUNT) * _Uratio;
-=======
 			//U[_phase] = sqrt(_summ / CounterADC) * _Uratio;
 			U[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Uratio;
->>>>>>> Stashed changes
 			getI = true;
-			_Ucntr = _cntr;	// для совместимости
+			_Ucntr = CounterADC;	// для совместимости
 		}
 		
-		correctRMS();
+		correct_RMS();
 		P[_phase] = (uint16_t)(I[_phase] * U[_phase]);
 		
 		if (getI)
@@ -91,17 +81,12 @@ void ACpower3::control()
 		D(RMSprio = uxTaskPriorityGet(NULL));
 		
 		portENTER_CRITICAL(&muxADC);
-<<<<<<< Updated upstream
-		_cntr = ADC_COUNT + 10;
-		portEXIT_CRITICAL(&muxADC);
-=======
 //		if (ZC[_phase]) { CounterADC = ACPOWER3_ADC_NEXT; }
 //		else { CounterADC = ACPOWER3_ADC_START; }
 		CounterADC = ACPOWER3_ADC_START;
 		portEXIT_CRITICAL(&muxADC);
 
 		check_ZC();
->>>>>>> Stashed changes
 	}
 	return;
 }
@@ -109,13 +94,11 @@ void ACpower3::control()
 
 void ACpower3::control(uint16_t angle_)
 {	
-		
+	
 	Angle = angle_;
 	return;
 }
 
-<<<<<<< Updated upstream
-=======
 void ACpower3::setpower(uint16_t setPower)
 {	
 	if (setPower > Pmax) Pset = Pmax;
@@ -133,9 +116,8 @@ void ACpower3::setpower(uint16_t setPower)
 	return;
 }
 
->>>>>>> Stashed changes
 
-void ACpower3::correctRMS()
+void ACpower3::correct_RMS()
 {
 	if (_corrRMS)
 	{
@@ -162,19 +144,23 @@ void ACpower3::correctRMS()
 	}
 }
 
-void ACpower3::setpower(uint16_t setPower)
-{	
-	if (setPower > Pmax) Pset = Pmax;
-	else if (setPower < ACPOWER3_MIN) Pset = 0;
-	else Pset = setPower;
-	
-	float xP = abs((Pset / Pmax) - 0.5);
-	
-	if (xP > 0.2) _lag = 2;
-	else if (xP > 0.1) _lag = 3;
-	else _lag = 4;
-	
-	return;
+
+void ACpower3::check_ZC()
+{
+	for (int i=0; i<3; i++)
+	{
+		if (_ZCcntr[i] > 5) 
+		{ 
+			ZC[i] = true; 
+		}
+		else
+		{ 
+			ZC[i] = false;
+			timerStop(timerTriac[i]);
+			digitalWrite(_pinTriac[i], LOW);
+		}
+		_ZCcntr[i] = 0;
+	}
 }
 
 #endif // ESP32
