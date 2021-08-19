@@ -73,7 +73,7 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 	else if (CounterADC == ACPOWER3_ADC_SAMPLES)
 	{
 		adcEnd(_pin);
-		CounterADC++;
+		CounterADC = ACPOWER3_ADC_DONE;
 		xSemaphoreGiveFromISR(smphRMS, NULL);
 	}
 	

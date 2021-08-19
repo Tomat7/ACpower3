@@ -31,9 +31,9 @@
 #define ACPOWER3_ADC_RATE 400    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
 #define ACPOWER3_ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
 #define ACPOWER3_ADC_SAMPLES (ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
-#define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 1)
-#define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 5)
-#define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 10)
+#define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 10)
+#define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 99)
+#define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 1000)
 #define ACPOWER3_ADC_TIMER 3		// номер таймера для АЦП
 //define TRIAC_TIMER 0	// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
 
