@@ -24,7 +24,7 @@ void ACpower3::setup_Triac(uint8_t i)
 	else if (i==1) timerAttachInterrupt(timerTriac[i], &OpenTriac_int1, true);
 	else if (i==2) timerAttachInterrupt(timerTriac[i], &OpenTriac_int2, true);
 	
-	timerAlarmWrite(timerTriac[i], (ANGLE_MAX + ANGLE_DELTA), true);
+	timerAlarmWrite(timerTriac[i], (ACPOWER3_ANGLE_MAX + ACPOWER3_ANGLE_DELTA), true);
 	timerAlarmEnable(timerTriac[i]);
 	timerWrite(timerTriac[i], Angle);
 	log_cfg_ln(" - OK");
@@ -41,9 +41,9 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 	_msZCmillis[i] = millis();
 	pinMode(_pinZCross[i], INPUT_PULLUP);
 	
-	if (i==0) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int0, ZC_EDGE);
-	else if (i==1) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int1, ZC_EDGE);
-	else if (i==2) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int2, ZC_EDGE);
+	if (i==0) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int0, ACPOWER3_ZC_EDGE);
+	else if (i==1) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int1, ACPOWER3_ZC_EDGE);
+	else if (i==2) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int2, ACPOWER3_ZC_EDGE);
 
 	log_cfg_ln(" - OK");
 
@@ -52,16 +52,24 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 
 void ACpower3::setup_ADC()
 {
-	//uint16_t ADCperSet = ADC_RATE * ADC_WAVES;
-	uint16_t usADCinterval = (uint16_t)(10000 / ADC_RATE);
+	//uint16_t ADCperSet = ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES;
+	uint16_t usADCinterval = (uint16_t)(10000 / ACPOWER3_ADC_RATE);
 	smphRMS = xSemaphoreCreateBinary();
 	getI = true;
+<<<<<<< Updated upstream
 	_cntr = ADC_COUNT;
+=======
+	CounterADC = ACPOWER3_ADC_SAMPLES;
+>>>>>>> Stashed changes
 	_phase = 0;
 	_pin = _pinI[_phase];
 	_zerolevel = _Izerolevel[_phase];
 	
+<<<<<<< Updated upstream
 	timerADC = timerBegin(TIMER_ADC, 80, true);
+=======
+	timerADC = timerBegin(ACPOWER3_ADC_TIMER, 80, true);
+>>>>>>> Stashed changes
 	timerAttachInterrupt(timerADC, &GetADC_int, true);
 	timerAlarmWrite(timerADC, usADCinterval, true);
 	timerAlarmEnable(timerADC);
@@ -69,9 +77,9 @@ void ACpower3::setup_ADC()
 	
 	log_cfg_ln(" + ADC Inerrupt setup OK");
 	log_cfg_f(" . ADC microSeconds between samples: ", usADCinterval);
-	log_cfg_f(" . ADC samples per half-wave: ", ADC_RATE);
-	log_cfg_f(" . ADC samples per calculation set: ", ADC_COUNT);
-	log_cfg_f(" . ADC half-waves per calculation set: ", ADC_WAVES);
+	log_cfg_f(" . ADC samples per half-wave: ", ACPOWER3_ADC_RATE);
+	log_cfg_f(" . ADC samples per calculation set: ", ACPOWER3_ADC_SAMPLES);
+	log_cfg_f(" . ADC half-waves per calculation set: ", ACPOWER3_ADC_WAVES);
 	
 	return;
 }

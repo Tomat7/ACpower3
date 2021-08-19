@@ -14,8 +14,8 @@ portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
 //hw_timer_t *ACpower3::timerTriac = NULL;
 volatile SemaphoreHandle_t ACpower3::smphRMS;
 
-volatile bool ACpower3::getI = true;
-volatile bool ACpower3::takeADC = false;
+//volatile bool ACpower3::getI = true;
+//volatile bool ACpower3::takeADC = false;
 
 //volatile uint16_t* ACpower3::_pAngle;
 //volatile uint16_t ACpower3::Angle;
@@ -55,22 +55,34 @@ void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 {
 	portENTER_CRITICAL_ISR(&muxADC);
 	
+<<<<<<< Updated upstream
 	if (_cntr < ADC_COUNT)
+=======
+	if (CounterADC < ACPOWER3_ADC_SAMPLES)
+>>>>>>> Stashed changes
 	{
 		Xnow = adcEnd(_pin) - _zerolevel;
 		X2 = Xnow * Xnow;
-		if (X2 < ADC_NOISE) X2 = 0;
+		if (X2 < ACPOWER3_ADC_NOISE) X2 = 0;
 		_summ += X2;
 		_cntr++;
 		adcStart(_pin);
 	}
+<<<<<<< Updated upstream
 	else if (_cntr == (ADC_COUNT + 10))
+=======
+	else if (CounterADC == ACPOWER3_ADC_START)
+>>>>>>> Stashed changes
 	{
 		adcEnd(_pin);
 		_cntr = 0;
 		adcStart(_pin);
 	}
+<<<<<<< Updated upstream
 	else if (_cntr == ADC_COUNT)
+=======
+	else if (CounterADC == ACPOWER3_ADC_SAMPLES)
+>>>>>>> Stashed changes
 	{
 		adcEnd(_pin);
 		_cntr++;

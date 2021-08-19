@@ -21,6 +21,7 @@
 
 #if defined(ESP32)
 
+<<<<<<< Updated upstream
 #define LIBVERSION "ACpower3_v20210319 " 
 
 #define ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
@@ -57,6 +58,49 @@
 #define ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
 #define ANGLE_DELTA 100		// запас по времени для открытия триака
 #define ACPOWER3_MAX 3000		// больше этой мощности установить не получится
+=======
+#define ACPOWER3_LIBVERSION "ACpower3_v20210709 " 
+
+#define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
+#define ACPOWER3_ZC_EDGE FALLING	// FALLING, RISING
+
+#define ACPOWER3_ADC_NOISE 20	// попробуем "понизить" шум АЦП
+
+#define ACPOWER3_ADC_RATE 400    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
+#define ACPOWER3_ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
+#define ACPOWER3_ADC_SAMPLES (ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
+#define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 1)
+#define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 5)
+#define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 10)
+#define ACPOWER3_ADC_TIMER 3		// номер таймера для АЦП
+//define TRIAC_TIMER 0	// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
+
+//#define ACPOWER3_ADC_I_RATIO 0.02	// значение по умолчанию
+//#define ACPOWER3_ADC_U_RATIO 0.2 	// значение по умолчанию
+
+// default PINs config
+// phase 0
+#define ACPOWER3_PIN_ZC0 25  // детектор нуля
+#define ACPOWER3_PIN_TR0 26  // триак
+#define ACPOWER3_PIN_I0 36  // датчик тока
+#define ACPOWER3_PIN_U0 39  // датчик напряжения
+// phase 1
+#define ACPOWER3_PIN_ZC1 14  // детектор нуля ??
+#define ACPOWER3_PIN_TR1 27  // триак 
+#define ACPOWER3_PIN_I1 32  // датчик тока
+#define ACPOWER3_PIN_U1 33  // датчик напряжения
+// phase 2
+#define ACPOWER3_PIN_ZC2 13  // детектор нуля
+#define ACPOWER3_PIN_TR2 12  // триак ??
+#define ACPOWER3_PIN_I2 34  // датчик тока
+#define ACPOWER3_PIN_U2 35  // датчик напряжения
+
+#define ACPOWER3_ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
+#define ACPOWER3_ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
+#define ACPOWER3_ANGLE_DELTA 100		// запас по времени для открытия триака
+#define ACPOWER3_ANGLE_MIDDLE 5000	// экспериментально...
+#define ACPOWER3_MAX 3500		// больше этой мощности установить не получится
+>>>>>>> Stashed changes
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
 
 //efine TIMER_TRIAC 0			// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
@@ -92,9 +136,14 @@ public:
 	
 	volatile static uint32_t CounterZC[3];
 	volatile static uint32_t CounterTR[3];
+<<<<<<< Updated upstream
 
+=======
+	volatile static uint32_t CounterADC;	
+>>>>>>> Stashed changes
 	uint32_t CounterRMS = 0;
-	String LibVersion = LIBVERSION;
+	
+	String LibVersion = ACPOWER3_LIBVERSION;
 	String LibConfig;
 
 	volatile static int16_t Xnow;
@@ -128,17 +177,22 @@ public:
 	//volatile static 
 	uint32_t _Ucntr;
 	
+<<<<<<< Updated upstream
 	volatile static uint32_t _cntr;
+=======
+>>>>>>> Stashed changes
 	//uint8_t PinTriac;
 
 protected:
 	//=== Прерывания
 	static void ZeroCross_int0();
-	static void OpenTriac_int0(); 
 	static void ZeroCross_int1();
-	static void OpenTriac_int1(); 
 	static void ZeroCross_int2();
+	
+	static void OpenTriac_int0(); 
+	static void OpenTriac_int1(); 
 	static void OpenTriac_int2(); 
+	
 	static void GetADC_int(); 
 	
 	static hw_timer_t* timerTriac[3];
@@ -180,17 +234,25 @@ protected:
 	static portMUX_TYPE muxADC;
 	
 	volatile static bool getI;
-	volatile static bool takeADC;
+	//volatile static bool takeADC;
 
 	volatile static uint8_t _zero;
+<<<<<<< Updated upstream
 	volatile static uint8_t _pin;
+=======
+	volatile static uint8_t _pin;		// current pin - ADC collect U/I on THIS pin
+	volatile static uint8_t _phase;		// current phase - ADC calculate THIS phase
+>>>>>>> Stashed changes
 	
 	//volatile static uint16_t* _pAngle;
 	volatile static uint64_t _summ;
 	volatile static uint64_t _I2summ;
 	volatile static uint64_t _U2summ;
+<<<<<<< Updated upstream
 
 	//volatile static uint32_t _cntr;
+=======
+>>>>>>> Stashed changes
 	volatile static uint16_t _zerolevel;
 
 	void log_cfg(String str0);

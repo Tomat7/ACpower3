@@ -19,6 +19,7 @@
 ACpower3::ACpower3()
 {
 	Pmax = ACPOWER3_MAX;		// а надо ли??
+<<<<<<< Updated upstream
 	_pinZCross[0] = PIN_ZC0;	// пин подключения детектора нуля.
 	_pinTriac[0] = PIN_TR0;		// пин управляющий триаком. 
 	_pinZCross[1] = PIN_ZC1;	
@@ -33,6 +34,20 @@ ACpower3::ACpower3()
 	_pinU[2] = PIN_U2;		
 	_useADC = true;
 	_ShowLog = true;
+=======
+	_pinZCross[0] = ACPOWER3_PIN_ZC0;	// пин подключения детектора нуля.
+	_pinTriac[0] = ACPOWER3_PIN_TR0;		// пин управляющий триаком. 
+	_pinZCross[1] = ACPOWER3_PIN_ZC1;	
+	_pinTriac[1] = ACPOWER3_PIN_TR1;		
+	_pinZCross[2] = ACPOWER3_PIN_ZC2;	
+	_pinTriac[2] = ACPOWER3_PIN_TR2;		
+	_pinI[0] = ACPOWER3_PIN_I0;		// пин датчика тока.
+	_pinU[0] = ACPOWER3_PIN_U0;		// пин датчика напряжения. 
+	_pinI[1] = ACPOWER3_PIN_I1;		
+	_pinU[1] = ACPOWER3_PIN_U1;		
+	_pinI[2] = ACPOWER3_PIN_I2;		
+	_pinU[2] = ACPOWER3_PIN_U2;		
+>>>>>>> Stashed changes
 	return;
 }
 
@@ -92,9 +107,13 @@ void ACpower3::init(float Iratio, float Uratio)
 {  
 	Angle = 0;
 	
+<<<<<<< Updated upstream
 	// Serial.println(F(LIBVERSION));
 	//	LibVersion = LIBVERSION;
 	log_cfg_ln(LIBVERSION);
+=======
+	log_cfg_ln(ACPOWER3_LIBVERSION);
+>>>>>>> Stashed changes
 	log_cfg_f(" + Pmax: ", Pmax);
 	//PRINTF(" + Pmax: ", Pmax);
 	

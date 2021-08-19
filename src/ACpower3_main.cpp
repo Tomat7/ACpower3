@@ -21,15 +21,25 @@ void ACpower3::control()
 		
 		if (getI) 
 		{	
+<<<<<<< Updated upstream
 			//I[_phase] = sqrt(_summ / _cntr) * _Iratio;
 			I[_phase] = sqrt(_summ / ADC_COUNT) * _Iratio;
+=======
+			//I[_phase] = sqrt(_summ / CounterADC) * _Iratio;
+			I[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Iratio;
+>>>>>>> Stashed changes
 			getI = false;
 			_Icntr = _cntr;	// не нужно
 		}
 		else
 		{
+<<<<<<< Updated upstream
 			//U[_phase] = sqrt(_summ / _cntr) * _Uratio;
 			U[_phase] = sqrt(_summ / ADC_COUNT) * _Uratio;
+=======
+			//U[_phase] = sqrt(_summ / CounterADC) * _Uratio;
+			U[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Uratio;
+>>>>>>> Stashed changes
 			getI = true;
 			_Ucntr = _cntr;	// для совместимости
 		}
@@ -72,17 +82,26 @@ void ACpower3::control()
 		{
 			//int16_t Pdiff = Pset - Pnow;
 			_angle += (Pset - Pnow) / _lag;
-			_angle = constrain(_angle, ANGLE_MIN, ANGLE_MAX - ANGLE_DELTA);
+			_angle = constrain(_angle, ACPOWER3_ANGLE_MIN, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
 		}
-		else _angle = ANGLE_MIN - 500;
+		else _angle = ACPOWER3_ANGLE_MIN - 500;
 		
 		Angle = _angle;
 		D(RMScore = xPortGetCoreID());
 		D(RMSprio = uxTaskPriorityGet(NULL));
 		
 		portENTER_CRITICAL(&muxADC);
+<<<<<<< Updated upstream
 		_cntr = ADC_COUNT + 10;
 		portEXIT_CRITICAL(&muxADC);
+=======
+//		if (ZC[_phase]) { CounterADC = ACPOWER3_ADC_NEXT; }
+//		else { CounterADC = ACPOWER3_ADC_START; }
+		CounterADC = ACPOWER3_ADC_START;
+		portEXIT_CRITICAL(&muxADC);
+
+		check_ZC();
+>>>>>>> Stashed changes
 	}
 	return;
 }
@@ -95,6 +114,26 @@ void ACpower3::control(uint16_t angle_)
 	return;
 }
 
+<<<<<<< Updated upstream
+=======
+void ACpower3::setpower(uint16_t setPower)
+{	
+	if (setPower > Pmax) Pset = Pmax;
+	else if (setPower < ACPOWER3_MIN) Pset = 0;
+	else Pset = setPower;
+//	_lag = 1 / (0.3 + (abs(ACPOWER3_ANGLE_MIDDLE - Angle) / 10000));
+	_lag = 4;
+	
+/*
+	float xP = abs((Pset / Pmax) - 0.5);
+	if (xP > 0.2) _lag = 2;
+	else if (xP > 0.1) _lag = 3;
+	else _lag = 4;
+*/	
+	return;
+}
+
+>>>>>>> Stashed changes
 
 void ACpower3::correctRMS()
 {

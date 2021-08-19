@@ -65,6 +65,17 @@ void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
+<<<<<<< Updated upstream
+=======
+/*		
+		if (_phase == i) 
+		{
+			portENTER_CRITICAL_ISR(&muxADC);
+			if (CounterADC == ACPOWER3_ADC_NEXT) { CounterADC = ACPOWER3_ADC_START; }
+			portEXIT_CRITICAL_ISR(&muxADC);
+		} 
+*/
+>>>>>>> Stashed changes
 	}
 	return;
 }
@@ -82,6 +93,17 @@ void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
+<<<<<<< Updated upstream
+=======
+/*		
+		if (_phase == i) 
+		{
+			portENTER_CRITICAL_ISR(&muxADC);
+			if (CounterADC == ACPOWER3_ADC_NEXT) { CounterADC = ACPOWER3_ADC_START; }
+			portEXIT_CRITICAL_ISR(&muxADC);
+		}
+*/	
+>>>>>>> Stashed changes
 	}
 	return;
 }
@@ -99,6 +121,17 @@ void IRAM_ATTR ACpower3::ZeroCross_int2() //__attribute__((always_inline))
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
 		//Angle = *_pAngle;
+<<<<<<< Updated upstream
+=======
+/*		
+		if (_phase == 5) 
+		{
+			portENTER_CRITICAL_ISR(&muxADC);
+			if (CounterADC == ACPOWER3_ADC_NEXT) { CounterADC = ACPOWER3_ADC_START; }
+			portEXIT_CRITICAL_ISR(&muxADC);
+		}
+*/		
+>>>>>>> Stashed changes
 	}
 	return;
 }

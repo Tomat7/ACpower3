@@ -55,7 +55,7 @@ void IRAM_ATTR ACpower3::OpenTriac_int0() //__attribute__((always_inline))
 {
 	const uint8_t i = 0;
 	uint64_t _tmrTriacNow = timerRead(timerTriac[i]);
-	if ((_tmrTriacNow > ANGLE_MIN) && (_tmrTriacNow < ANGLE_MAX))
+	if ((_tmrTriacNow > ACPOWER3_ANGLE_MIN) && (_tmrTriacNow < ACPOWER3_ANGLE_MAX))
 	{
 		digitalWrite(_pinTriac[i], HIGH);
 		//trOpened = true;
@@ -79,7 +79,7 @@ void IRAM_ATTR ACpower3::OpenTriac_int1() //__attribute__((always_inline))
 {
 	const uint8_t i = 1;
 	uint64_t _tmrTriacNow = timerRead(timerTriac[i]);
-	if ((_tmrTriacNow > ANGLE_MIN) && (_tmrTriacNow < ANGLE_MAX))
+	if ((_tmrTriacNow > ACPOWER3_ANGLE_MIN) && (_tmrTriacNow < ACPOWER3_ANGLE_MAX))
 	{
 		digitalWrite(_pinTriac[i], HIGH);
 		//trOpened = true;
@@ -103,7 +103,7 @@ void IRAM_ATTR ACpower3::OpenTriac_int2() //__attribute__((always_inline))
 {
 	const uint8_t i = 2;
 	uint64_t _tmrTriacNow = timerRead(timerTriac[i]);
-	if ((_tmrTriacNow > ANGLE_MIN) && (_tmrTriacNow < ANGLE_MAX))
+	if ((_tmrTriacNow > ACPOWER3_ANGLE_MIN) && (_tmrTriacNow < ACPOWER3_ANGLE_MAX))
 	{
 		digitalWrite(_pinTriac[i], HIGH);
 		//trOpened = true;
