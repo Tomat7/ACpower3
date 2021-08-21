@@ -53,32 +53,35 @@ volatile uint16_t ACpower3::_zerolevel = 0;
 uint16_t ACpower3::_Izerolevel = 0;
 uint16_t ACpower3::_Uzerolevel = 0;
 */
-volatile uint32_t ACpower3::_msZCmillis[3];
+volatile uint32_t ACpower3::_msZCross[3];
 //volatile bool ACpower3::trOpened;
 
 void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 {
 	const uint8_t i = 0;
 	CounterZC_raw[i]++;
-	if ((millis() - _msZCmillis[i]) > 5)
+	if ((millis() - _msZCross[i]) > 5)
 	{
 		timerStop(timerTriac[i]);
 		digitalWrite(_pinTriac[i], LOW);
-		_msZCmillis[i] = millis();
+		_msZCross[i] = millis();
 		CounterZC[i]++;
 		_ZCcntr[i]++;
 		
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
-		//Angle = *_pAngle;
-/*		
+		
+#ifdef ACPOWER3_ADC_TUNING
 		if (_phase == i) 
 		{
-			portENTER_CRITICAL_ISR(&muxADC);
-			if (CounterADC == ACPOWER3_ADC_NEXT) { CounterADC = ACPOWER3_ADC_START; }
-			portEXIT_CRITICAL_ISR(&muxADC);
+			if (CounterADC == ACPOWER3_ADC_NEXT) 
+			{ 
+				portENTER_CRITICAL_ISR(&muxADC);
+				CounterADC = ACPOWER3_ADC_START;
+				portEXIT_CRITICAL_ISR(&muxADC);
+			}
 		} 
-*/
+#endif
 	}
 	return;
 }
@@ -87,25 +90,28 @@ void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 {
 	const uint8_t i = 1;
 	CounterZC_raw[i]++;
-	if ((millis() - _msZCmillis[i]) > 5)
+	if ((millis() - _msZCross[i]) > 5)
 	{
 		timerStop(timerTriac[i]);
 		digitalWrite(_pinTriac[i], LOW);
-		_msZCmillis[i] = millis();
+		_msZCross[i] = millis();
 		CounterZC[i]++;
 		_ZCcntr[i]++;
 		
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
-		//Angle = *_pAngle;
-/*		
+		
+#ifdef ACPOWER3_ADC_TUNING
 		if (_phase == i) 
 		{
-			portENTER_CRITICAL_ISR(&muxADC);
-			if (CounterADC == ACPOWER3_ADC_NEXT) { CounterADC = ACPOWER3_ADC_START; }
-			portEXIT_CRITICAL_ISR(&muxADC);
+			if (CounterADC == ACPOWER3_ADC_NEXT) 
+			{ 
+				portENTER_CRITICAL_ISR(&muxADC);
+				CounterADC = ACPOWER3_ADC_START;
+				portEXIT_CRITICAL_ISR(&muxADC);
+			}
 		}
-*/	
+#endif
 	}
 	return;
 }
@@ -114,25 +120,28 @@ void IRAM_ATTR ACpower3::ZeroCross_int2() //__attribute__((always_inline))
 {
 	const uint8_t i = 2;
 	CounterZC_raw[i]++;
-	if ((millis() - _msZCmillis[i]) > 5)
+	if ((millis() - _msZCross[i]) > 5)
 	{
 		timerStop(timerTriac[i]);
 		digitalWrite(_pinTriac[i], LOW);
-		_msZCmillis[i] = millis();
+		_msZCross[i] = millis();
 		CounterZC[i]++;
 		_ZCcntr[i]++;
 		
 		timerWrite(timerTriac[i], Angle);
 		timerStart(timerTriac[i]);
-		//Angle = *_pAngle;
-/*		
-		if (_phase == 5) 
+		
+#ifdef ACPOWER3_ADC_TUNING
+		if (_phase == i) 
 		{
-			portENTER_CRITICAL_ISR(&muxADC);
-			if (CounterADC == ACPOWER3_ADC_NEXT) { CounterADC = ACPOWER3_ADC_START; }
-			portEXIT_CRITICAL_ISR(&muxADC);
+			if (CounterADC == ACPOWER3_ADC_NEXT) 
+			{
+				portENTER_CRITICAL_ISR(&muxADC);
+				CounterADC = ACPOWER3_ADC_START;
+				portEXIT_CRITICAL_ISR(&muxADC);
+			}
 		}
-*/		
+#endif		
 	}
 	return;
 }

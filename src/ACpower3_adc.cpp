@@ -47,7 +47,7 @@ volatile uint16_t ACpower3::_zerolevel = 0;
 uint16_t ACpower3::_Izerolevel = 0;
 uint16_t ACpower3::_Uzerolevel = 0;
 */
-//volatile uint32_t ACpower3::_msZCmillis[3];
+//volatile uint32_t ACpower3::_msZCross[3];
 //volatile bool ACpower3::trOpened;
 
 

@@ -38,12 +38,12 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 	log_cfg(" ZCross on pin ", _pinZCross[i]);
 	
 	//takeADC = false;
-	_msZCmillis[i] = millis();
+	_msZCross[i] = millis();
 	pinMode(_pinZCross[i], INPUT_PULLUP);
 	
-	if (i==0) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int0, ACPOWER3_ZC_EDGE);
-	else if (i==1) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int1, ACPOWER3_ZC_EDGE);
-	else if (i==2) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int2, ACPOWER3_ZC_EDGE);
+	if (i==0) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int0, _ZCmode);
+	else if (i==1) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int1, _ZCmode);
+	else if (i==2) attachInterrupt(digitalPinToInterrupt(_pinZCross[i]), ZeroCross_int2, _ZCmode);
 
 	log_cfg_ln(" - OK");
 

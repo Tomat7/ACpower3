@@ -30,34 +30,15 @@ ACpower3::ACpower3()
 	_pinI[1] = ACPOWER3_PIN_I1;		
 	_pinU[1] = ACPOWER3_PIN_U1;		
 	_pinI[2] = ACPOWER3_PIN_I2;		
-	_pinU[2] = ACPOWER3_PIN_U2;		
-	return;
-}
-
-ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
-					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
-					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2)
-{
-	Pmax = ACPOWER3_MAX;		// а надо ли??
-	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
-	_pinTriac[0] = pinTR0;		// пин управляющий триаком. 
-	_pinZCross[1] = pinZC1;		
-	_pinTriac[1] = pinTR1;		 
-	_pinZCross[2] = pinZC2;	
-	_pinTriac[2] = pinTR2;	
-	_pinI[0] = pinI0;		// пин датчика тока.
-	_pinU[0] = pinU0;		// пин датчика напряжения. 
-	_pinI[1] = pinI1;		
-	_pinU[1] = pinU1;		
-	_pinI[2] = pinI2;		
-	_pinU[2] = pinU2;		
+	_pinU[2] = ACPOWER3_PIN_U2;
+	_ZCmode = RISING;
 	return;
 }
 
 ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
-					uint16_t pmax)
+					uint16_t pmax, int zcIntMode)
 {
 	Pmax = pmax;		// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
@@ -71,7 +52,8 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 	_pinI[1] = pinI1;		
 	_pinU[1] = pinU1;		
 	_pinI[2] = pinI2;		
-	_pinU[2] = pinU2;		
+	_pinU[2] = pinU2;
+	_ZCmode = zcIntMode;
 	return;
 }
 

@@ -24,19 +24,22 @@
 #define ACPOWER3_LIBVERSION "ACpower3_v20210709 " 
 
 #define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
-#define ACPOWER3_ZC_EDGE FALLING	// FALLING, RISING
+#define ACPOWER3_ZC_EDGE RISING	// FALLING, RISING
 
-#define ACPOWER3_ADC_NOISE 20	// попробуем "понизить" шум АЦП
+//#define ACPOWER3_ADC_TUNING		// попытка "привязать" старт сбора с АЦП к ZeroCross
+#define ACPOWER3_ADC_NOISE 100	// попробуем "понизить" шум АЦП
 
-#define ACPOWER3_ADC_RATE 400    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
-#define ACPOWER3_ADC_WAVES 10    // количество обсчитываемых ПОЛУволн 
+#define ACPOWER3_ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
+#define ACPOWER3_ADC_WAVES 4    // количество обсчитываемых ПОЛУволн 
+#define ACPOWER3_RMS_LAG 4
+
 #define ACPOWER3_ADC_SAMPLES (ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
 #define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 10)
 #define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 99)
 #define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 1000)
 #define ACPOWER3_ADC_TIMER 3		// номер таймера для АЦП
-//define TRIAC_TIMER 0	// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
 
+//define TRIAC_TIMER 0	// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
 //#define ACPOWER3_ADC_I_RATIO 0.02	// значение по умолчанию
 //#define ACPOWER3_ADC_U_RATIO 0.2 	// значение по умолчанию
 
@@ -78,12 +81,8 @@ public:
 	
 	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
-			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2);
-	
-	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
-	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
-			 uint16_t pmax);
+			 uint16_t pmax, int zcIntMode);
 		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
@@ -145,9 +144,11 @@ protected:
 	static uint8_t _pinTriac[3];
 	
 	uint8_t _pinZCross[3];
-	volatile static uint32_t _msZCmillis[3];
+	uint32_t _msCheckZC = 0;
+	volatile static uint32_t _msZCross[3];
 	volatile static uint32_t _ZCcntr[3];
 	
+	int _ZCmode;
 	uint8_t _pinI[3];
 	uint8_t _pinU[3];
 	uint16_t _Izerolevel[3];
@@ -179,7 +180,8 @@ protected:
 	volatile static SemaphoreHandle_t smphRMS;
 	static portMUX_TYPE muxADC;
 	
-	volatile static bool getI;
+	//volatile static bool getI;
+	bool getI;
 	//volatile static bool takeADC;
 
 	volatile static uint8_t _zero;
