@@ -26,7 +26,7 @@
 #define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ACPOWER3_ZC_EDGE RISING	// FALLING, RISING
 
-#define ACPOWER3_ADC_TUNING		// попытка "привязать" старт сбора с АЦП к ZeroCross
+//#define ACPOWER3_ADC_TUNING		// попытка "привязать" старт сбора с АЦП к ZeroCross
 #define ACPOWER3_ADC_NOISE 100	// попробуем "понизить" шум АЦП
 
 #define ACPOWER3_ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
@@ -108,6 +108,7 @@ public:
 	
 	void init(float Iratio, float Uratio, float *pIcorr, float *pUcorr); // all in one
 	void initTR();
+	void initZC();
 	void initADC();
 	void setupADCratio(float Iratio, float Uratio);
 	void setupRMScorrection(float *pIcorr, float *pUcorr);

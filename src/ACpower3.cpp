@@ -61,6 +61,7 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 void ACpower3::init(float Iratio, float Uratio, float *pIcorr, float *pUcorr)
 {  
 	initTR();
+	initZC();
 	initADC();
 	setupADCratio(Iratio, Uratio);
 	setupRMScorrection(pIcorr, pUcorr);
@@ -78,6 +79,18 @@ void ACpower3::initTR()
 		DELAYx;
 		setup_Triac(i);
 		DELAYx;
+		//setup_ZeroCross(i);
+		//DELAYx;
+	}
+}
+
+void ACpower3::initZC()
+{ 
+	for (int i=0; i<3; i++)
+	{
+		DELAYx;
+		//setup_Triac(i);
+		//DELAYx;
 		setup_ZeroCross(i);
 		DELAYx;
 	}
