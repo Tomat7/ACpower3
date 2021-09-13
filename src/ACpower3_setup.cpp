@@ -50,13 +50,15 @@ void ACpower3::setup_ZeroCross(uint8_t i)
 	return;
 }
 
-void ACpower3::setup_ADC()
+void ACpower3::setup_ADC(uint16_t ADCrate, uint16_t ADCwaves)
 {
-	//uint16_t ADCperSet = ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES;
-	uint16_t usADCinterval = (uint16_t)(10000 / ACPOWER3_ADC_RATE);
+	_ADCsamples = ADCrate * ADCwaves;
+//	uint16_t usADCinterval = (uint16_t)(10000 / ACPOWER3_ADC_RATE);
+	uint16_t usADCinterval = (uint16_t)(10000 / ADCrate);
 	smphRMS = xSemaphoreCreateBinary();
 	getI = true;
-	CounterADC = ACPOWER3_ADC_SAMPLES;
+//	CounterADC = ACPOWER3_ADC_SAMPLES;
+	CounterADC = _ADCsamples;
 	_phase = 0;
 	_pin = _pinI[_phase];
 	_zerolevel = _Izerolevel[_phase];
@@ -69,9 +71,9 @@ void ACpower3::setup_ADC()
 	
 	log_cfg_ln(" + ADC Inerrupt setup OK");
 	log_cfg_f(" . ADC microSeconds between samples: ", usADCinterval);
-	log_cfg_f(" . ADC samples per half-wave: ", ACPOWER3_ADC_RATE);
-	log_cfg_f(" . ADC samples per calculation set: ", ACPOWER3_ADC_SAMPLES);
-	log_cfg_f(" . ADC half-waves per calculation set: ", ACPOWER3_ADC_WAVES);
+	log_cfg_f(" . ADC samples per half-wave: ", ADCrate);
+	log_cfg_f(" . ADC samples per calculation set: ", _ADCsamples);
+	log_cfg_f(" . ADC half-waves per calculation set: ", ADCwaves);
 	
 	return;
 }

@@ -20,7 +20,6 @@ void ACpower3::control()
 		
 		if (getI) 	// посчитали пока только ТОК
 		{	
-			//I[_phase] = sqrt(_summ / CounterADC) * _Iratio;
 			getI = false;
 			I[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Iratio;
 			_Icntr = CounterADC;	// не нужно
@@ -29,34 +28,34 @@ void ACpower3::control()
 		}
 		else		// теперь посчитали ещё и НАПРЯЖЕНИЕ
 		{
-			//U[_phase] = sqrt(_summ / CounterADC) * _Uratio;
 			getI = true;
 			U[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Uratio;
 			_Ucntr = CounterADC;	// для совместимости
 
 			if (_corrRMS) { correct_RMS(); }
 			P[_phase] = (uint16_t)(I[_phase] * U[_phase]);	
-			uint16_t Pcurr = P[0] +  P[1] +  P[2];
+			Pnow = P[0] +  P[1] +  P[2];
 			
-			_phase++;
-			if (_phase == 3) 
-			{
-				_phase = 0;
-				Pold = Pprev;
-				Pprev = Pnow;
-				Pavg = (uint16_t)((Pcurr + Pprev + Pold) / 3); 
-			}
-			
-			_pin = _pinI[_phase];
-			_zerolevel = _Izerolevel[_phase];
-
-			Pnow = Pcurr;
-			if (Pset > 0)
+			if (Pset > 0) //&& (ZC[_phase]))
 			{
 				_angle += (Pset - Pnow) / _lag; //ACPOWER3_RMS_LAG;
 				_angle = constrain(_angle, ACPOWER3_ANGLE_MIN, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
 			}
-			else _angle = ACPOWER3_ANGLE_MIN - 500;
+			else 
+			{ 
+				_angle = ACPOWER3_ANGLE_MIN - 500;
+			}
+			
+			_phase++;
+			
+			if (_phase == 3) 
+			{
+				_phase = 0;
+				Pavg = (uint16_t)((Pavg + Pnow) / 2); 
+			}
+			
+			_pin = _pinI[_phase];
+			_zerolevel = _Izerolevel[_phase];
 		}
 
 		_summ = 0;
@@ -93,16 +92,8 @@ void ACpower3::setpower(uint16_t setPower)
 	if (setPower > Pmax) Pset = Pmax;
 	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
-//	_lag = 1 / (0.3 + (abs(ACPOWER3_ANGLE_MIDDLE - Angle) / 10000));
-//	_lag = (ACPOWER3_ANGLE_MIDDLE - abs(ACPOWER3_ANGLE_MIDDLE - Angle)) / 2000;
 	_lag = ACPOWER3_RMS_LAG;
 
-	/*
-	float xP = abs((Pset / Pmax) - 0.5);
-	if (xP > 0.2) _lag = 2;
-	else if (xP > 0.1) _lag = 3;
-	else _lag = 4;
-*/	
 	return;
 }
 

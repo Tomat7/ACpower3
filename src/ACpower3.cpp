@@ -31,16 +31,15 @@ ACpower3::ACpower3()
 	_pinU[1] = ACPOWER3_PIN_U1;		
 	_pinI[2] = ACPOWER3_PIN_I2;		
 	_pinU[2] = ACPOWER3_PIN_U2;
-	_ZCmode = RISING;
 	return;
 }
 
 ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 					uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 					uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
-					uint16_t pmax, int zcIntMode)
+					uint16_t pmax)
 {
-	Pmax = pmax;		// а надо ли??
+	Pmax = pmax;				// а надо ли??
 	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
 	_pinTriac[0] = pinTR0;		// пин управляющий триаком. 
 	_pinZCross[1] = pinZC1;		
@@ -53,7 +52,6 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 	_pinU[1] = pinU1;		
 	_pinI[2] = pinI2;		
 	_pinU[2] = pinU2;
-	_ZCmode = zcIntMode;
 	return;
 }
 
@@ -76,27 +74,23 @@ void ACpower3::initTR()
 	
 	for (int i=0; i<3; i++)
 	{
-		DELAYx;
 		setup_Triac(i);
 		DELAYx;
-		//setup_ZeroCross(i);
-		//DELAYx;
 	}
 }
 
-void ACpower3::initZC()
+void ACpower3::initZC(int zcIntMode)
 { 
+	_ZCmode = zcIntMode;
+	
 	for (int i=0; i<3; i++)
 	{
-		DELAYx;
-		//setup_Triac(i);
-		//DELAYx;
 		setup_ZeroCross(i);
 		DELAYx;
 	}
 }
 
-void ACpower3::initADC()
+void ACpower3::initADC(uint16_t ADCrate, uint16_t ADCwaves)
 {
 	for (int i=0; i<3; i++)					// TEST!! наверное можно и без этого
 	{
@@ -106,7 +100,7 @@ void ACpower3::initADC()
 	
 	delay(20);
 	setup_ADCzerolevel(ZEROLEVEL_SAMPLES);
-	setup_ADC();
+	setup_ADC(ADCrate, ADCwaves);
 }
 
 void ACpower3::setADCratio(float Iratio, float Uratio)

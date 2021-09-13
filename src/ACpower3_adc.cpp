@@ -21,6 +21,7 @@ volatile SemaphoreHandle_t ACpower3::smphRMS;
 //volatile uint16_t ACpower3::Angle;
 volatile int16_t ACpower3::Xnow;
 volatile uint32_t ACpower3::X2;
+volatile uint16_t ACpower3::_ADCsamples;
 
 //volatile uint8_t ACpower3::_zero = 1;
 //volatile uint32_t ACpower3::CounterZC[3];

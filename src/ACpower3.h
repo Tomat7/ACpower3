@@ -33,10 +33,15 @@
 #define ACPOWER3_ADC_WAVES 4    // количество обсчитываемых ПОЛУволн 
 #define ACPOWER3_RMS_LAG 4
 
-#define ACPOWER3_ADC_SAMPLES (ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
-#define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 10)
-#define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 99)
-#define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 1000)
+//#define ACPOWER3_ADC_SAMPLES (ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
+#define ACPOWER3_ADC_SAMPLES _ADCsamples
+//#define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 10)
+//#define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 99)
+//#define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 1000)
+#define ACPOWER3_ADC_DONE 59000
+#define ACPOWER3_ADC_NEXT 64000
+#define ACPOWER3_ADC_START 65000
+
 #define ACPOWER3_ADC_TIMER 3		// номер таймера для АЦП
 
 //define TRIAC_TIMER 0	// в 3-х фазной версии для управления триаками используются таймеры 0, 1, 2
@@ -82,13 +87,14 @@ public:
 	ACpower3(uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0, \
 	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
-			 uint16_t pmax, int zcIntMode);
+			 uint16_t pmax = ACPOWER3_MAX);
 		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
 	uint16_t P[3];		// мощность по каждой фазе
 	uint16_t Pnow;		// суммарная мощность
 	uint16_t Pavg;		// среднее двух измерений
+	uint16_t Pold = 0;	
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
 	bool ZC[3];
@@ -108,8 +114,8 @@ public:
 	
 	void init(float Iratio, float Uratio, float *pIcorr, float *pUcorr); // all in one
 	void initTR();
-	void initZC();
-	void initADC();
+	void initZC(int zcIntMode = ACPOWER3_ZC_EDGE);
+	void initADC(uint16_t ADCrate = ACPOWER3_ADC_RATE, uint16_t ADCwaves = ACPOWER3_ADC_WAVES);
 	void setADCratio(float Iratio, float Uratio);
 	void setRMScorrection(float *pIcorr, float *pUcorr);
 	
@@ -157,7 +163,7 @@ protected:
 	
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
-	void setup_ADC();
+	void setup_ADC(uint16_t ADCrate, uint16_t ADCwaves);
 	void setup_ADCzerolevel(uint16_t Scntr);
 	
 	void correct_RMS();
@@ -165,7 +171,7 @@ protected:
 	
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);
 	
-	uint16_t Pprev = 0, Pold = 0;
+	uint16_t Pprev = 0; //, Pold = 0;
 	int16_t _angle = 0;
 	float _lag = 5.0;
 	
@@ -194,6 +200,7 @@ protected:
 	volatile static uint64_t _I2summ;
 	volatile static uint64_t _U2summ;
 	volatile static uint16_t _zerolevel;
+	volatile static uint16_t _ADCsamples;
 
 	void log_cfg(String str0);
 	void log_cfg(String str0, uint16_t num1);
