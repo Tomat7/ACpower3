@@ -66,8 +66,7 @@ void ACpower3::control()
 		
 		D(RMScore = xPortGetCoreID());
 		D(RMSprio = uxTaskPriorityGet(NULL));
-		
-	
+			
 		portENTER_CRITICAL(&muxADC);
 #ifdef ACPOWER3_ADC_TUNING
 		if (ZC[_phase]) { CounterADC = ACPOWER3_ADC_NEXT; }

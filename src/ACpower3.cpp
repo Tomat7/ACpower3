@@ -63,8 +63,8 @@ void ACpower3::init(float Iratio, float Uratio, float *pIcorr, float *pUcorr)
 	initTR();
 	initZC();
 	initADC();
-	setupADCratio(Iratio, Uratio);
-	setupRMScorrection(pIcorr, pUcorr);
+	setADCratio(Iratio, Uratio);
+	setRMScorrection(pIcorr, pUcorr);
 }
 
 void ACpower3::initTR()
@@ -109,14 +109,14 @@ void ACpower3::initADC()
 	setup_ADC();
 }
 
-void ACpower3::setupADCratio(float Iratio, float Uratio)
+void ACpower3::setADCratio(float Iratio, float Uratio)
 {  
 	_Iratio = Iratio;
 	_Uratio = Uratio;
 	return;
 }
 
-void ACpower3::setupRMScorrection(float *pIcorr, float *pUcorr)
+void ACpower3::setRMScorrection(float *pIcorr, float *pUcorr)
 {
 	_pIcorr = pIcorr;
 	_pUcorr = pUcorr;

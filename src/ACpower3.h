@@ -21,7 +21,7 @@
 
 #if defined(ESP32)
 
-#define ACPOWER3_LIBVERSION "ACpower3_v20210709 " 
+#define ACPOWER3_LIBVERSION "ACpower3_v20210912 " 
 
 #define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ACPOWER3_ZC_EDGE RISING	// FALLING, RISING
@@ -110,8 +110,8 @@ public:
 	void initTR();
 	void initZC();
 	void initADC();
-	void setupADCratio(float Iratio, float Uratio);
-	void setupRMScorrection(float *pIcorr, float *pUcorr);
+	void setADCratio(float Iratio, float Uratio);
+	void setRMScorrection(float *pIcorr, float *pUcorr);
 	
 	void control();					// 
 	void control(uint16_t angle_);  // для "ручного" управления триаком - MIN=0, MAX=10000. Без стабилизации!!
