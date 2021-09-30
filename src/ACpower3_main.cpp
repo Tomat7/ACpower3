@@ -51,7 +51,8 @@ void ACpower3::control()
 			if (_phase == 3) 
 			{
 				_phase = 0;
-				Pavg = (uint16_t)((Pavg + Pnow) / 2); 
+				Pavg = (uint16_t)((Pavg + Pnow) / 2);
+				Pold = Pnow;
 			}
 			
 			_pin = _pinI[_phase];
@@ -92,7 +93,7 @@ void ACpower3::setpower(uint16_t setPower)
 	if (setPower > Pmax) Pset = Pmax;
 	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
-	_lag = ACPOWER3_RMS_LAG;
+	//_lag = ACPOWER3_RMS_LAG;
 
 	return;
 }

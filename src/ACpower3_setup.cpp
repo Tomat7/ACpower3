@@ -70,10 +70,10 @@ void ACpower3::setup_ADC(uint16_t ADCrate, uint16_t ADCwaves)
 	DELAYx;
 	
 	log_cfg_ln(" + ADC Inerrupt setup OK");
-	log_cfg_f(" . ADC microSeconds between samples: ", usADCinterval);
+	log_cfg_f(" . ADC half-waves per calculation set: ", ADCwaves);
 	log_cfg_f(" . ADC samples per half-wave: ", ADCrate);
 	log_cfg_f(" . ADC samples per calculation set: ", _ADCsamples);
-	log_cfg_f(" . ADC half-waves per calculation set: ", ADCwaves);
+	log_cfg_f(" . ADC microSeconds between samples: ", usADCinterval);
 	
 	return;
 }

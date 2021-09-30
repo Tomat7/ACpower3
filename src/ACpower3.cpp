@@ -103,10 +103,11 @@ void ACpower3::initADC(uint16_t ADCrate, uint16_t ADCwaves)
 	setup_ADC(ADCrate, ADCwaves);
 }
 
-void ACpower3::setADCratio(float Iratio, float Uratio)
+void ACpower3::setADCratio(float Iratio, float Uratio, float lag)
 {  
 	_Iratio = Iratio;
 	_Uratio = Uratio;
+	_lag = lag;
 	return;
 }
 

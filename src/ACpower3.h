@@ -116,7 +116,7 @@ public:
 	void initTR();
 	void initZC(int zcIntMode = ACPOWER3_ZC_EDGE);
 	void initADC(uint16_t ADCrate = ACPOWER3_ADC_RATE, uint16_t ADCwaves = ACPOWER3_ADC_WAVES);
-	void setADCratio(float Iratio, float Uratio);
+	void setADCratio(float Iratio, float Uratio, float lag = ACPOWER3_RMS_LAG);
 	void setRMScorrection(float *pIcorr, float *pUcorr);
 	
 	void control();					// 
@@ -173,7 +173,7 @@ protected:
 	
 	uint16_t Pprev = 0; //, Pold = 0;
 	int16_t _angle = 0;
-	float _lag = 5.0;
+	float _lag = 4.0;
 	
 	float _Uratio;
 	float _Iratio;
