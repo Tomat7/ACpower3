@@ -4,76 +4,77 @@
 * Алгоритм с привязкой расчетов к детектору нуля, поддержка ESP32 и перевод в библиотеку (c) Tomat7
 */
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "ACpower3.h"
 #include "ACpower3_macros.h"
 
 #if defined(ESP32)
 
 portMUX_TYPE ACpower3::muxADC = portMUX_INITIALIZER_UNLOCKED;
-//hw_timer_t *ACpower3::timerTriac = NULL;
+
 volatile SemaphoreHandle_t ACpower3::smphRMS;
-
-volatile bool ACpower3::getI = true;
-volatile bool ACpower3::takeADC = false;
-
-//volatile uint16_t* ACpower3::_pAngle;
-//volatile uint16_t ACpower3::Angle;
 volatile int16_t ACpower3::Xnow;
 volatile uint32_t ACpower3::X2;
-
-//volatile uint8_t ACpower3::_zero = 1;
-//volatile uint32_t ACpower3::CounterZC[3];
-//volatile uint32_t ACpower3::CounterTR;
-
-volatile uint8_t ACpower3::_pin;
-/*
-	uint8_t ACpower3::_pinI;
-uint8_t ACpower3::_pinU;
-uint8_t ACpower3::_pinTriac;
-//uint8_t ACpower3::_pinZCross;
-*/
-
-volatile uint32_t ACpower3::CounterADC = 1;
-//volatile uint32_t ACpower3::_Icntr = 1;
-//volatile uint32_t ACpower3::_Ucntr = 1;
-
 volatile uint64_t ACpower3::_summ = 0;
-//volatile uint64_t ACpower3::_I2summ = 0;
-//volatile uint64_t ACpower3::_U2summ = 0;
+volatile uint16_t ACpower3::_adcCounterMax;
+volatile uint8_t ACpower3::_pin;
 
+volatile uint32_t ACpower3::_adcCounter = 1;
 volatile uint16_t ACpower3::_zerolevel = 0;
-/*
-uint16_t ACpower3::_Izerolevel = 0;
-uint16_t ACpower3::_Uzerolevel = 0;
-*/
-//volatile uint32_t ACpower3::_msZCmillis[3];
-//volatile bool ACpower3::trOpened;
 
+
+void ACpower3::setup_ADC(uint16_t ADCrate, uint16_t ADCwaves)
+{
+	_adcCounterMax = ADCrate * ADCwaves; // + (uint16_t)(ADCrate * 0.1);
+	uint16_t usADCinterval = (uint16_t)(10000 / ADCrate);
+
+	smphRMS = xSemaphoreCreateBinary();
+	getI = true;
+
+	_adcCounter = _adcCounterMax;
+	_phase = 0;
+	_pin = _pinI[_phase];
+	_zerolevel = _Izerolevel[_phase];
+	
+	timerADC = timerBegin(ACPOWER3_ADC_TIMER, 80, true);
+	timerAttachInterrupt(timerADC, &GetADC_int, true);
+	timerAlarmWrite(timerADC, usADCinterval, true);
+	timerAlarmEnable(timerADC);
+	DELAYx;
+	
+	log_cfg_ln(" + ADC Inerrupt setup OK");
+	log_cfg_ln(" . ADC half-waves per calculation set: ", ADCwaves);
+	log_cfg_ln(" . ADC samples per half-wave: ", ADCrate);
+	log_cfg_ln(" . ADC samples per calculation set: ", _adcCounterMax);
+	log_cfg_ln(" . ADC microSeconds between samples: ", usADCinterval);
+	
+	return;
+}
+	
 
 void IRAM_ATTR ACpower3::GetADC_int() //__attribute__((always_inline))
 {
 	portENTER_CRITICAL_ISR(&muxADC);
 	
-	if (CounterADC < ADC_COUNT)
+	if (_adcCounter < _adcCounterMax)
 	{
 		Xnow = adcEnd(_pin) - _zerolevel;
 		X2 = Xnow * Xnow;
-		if (X2 < ADC_NOISE) X2 = 0;
+		if (X2 < ACPOWER3_ADC_NOISE) X2 = 0;
 		_summ += X2;
-		CounterADC++;
+		_adcCounter++;
 		adcStart(_pin);
 	}
-	else if (CounterADC == (ADC_COUNT + 10))
+	else if (_adcCounter == ACPOWER3_ADC_START)
 	{
 		adcEnd(_pin);
-		CounterADC = 0;
+		_adcCounter = 0;
 		adcStart(_pin);
 	}
-	else if (CounterADC == ADC_COUNT)
+	else if (_adcCounter == _adcCounterMax)
 	{
 		adcEnd(_pin);
-		CounterADC++;
+		_adcCounter = ACPOWER3_ADC_DONE;
 		xSemaphoreGiveFromISR(smphRMS, NULL);
 	}
 	
@@ -91,14 +92,14 @@ void ACpower3::setup_ADCzerolevel(uint16_t Scntr)
 	{
 		log_cfg(" . ", i);
 		log_cfg(" I-meter on pin ", _pinI[i]);
-		log_cfg_f(", U-meter on pin ", _pinU[i]);
+		log_cfg_ln(", U-meter on pin ", _pinU[i]);
 		
 		_Izerolevel[i] = get_ZeroLevel(_pinI[i], Scntr);
 		_Uzerolevel[i] = get_ZeroLevel(_pinU[i], Scntr);
 
 		log_cfg(" . ", i);
 		log_cfg(" RMS ZeroLevel I: ", _Izerolevel[i]);
-		log_cfg_f(", U: ", _Uzerolevel[i]);
+		log_cfg_ln(", U: ", _Uzerolevel[i]);
 	}
 	return;
 }
