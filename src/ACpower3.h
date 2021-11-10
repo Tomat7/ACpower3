@@ -26,18 +26,16 @@
 #define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ACPOWER3_ZC_EDGE RISING	// FALLING, RISING
 
-//#define ACPOWER3_ADC_TUNING		// попытка "привязать" старт сбора с АЦП к ZeroCross
-#define ACPOWER3_ADC_NOISE 100	// попробуем "понизить" шум АЦП
+//#define ACPOWER3_ADC_TUNING	true // попытка "привязать" старт сбора с АЦП к ZeroCross
+#define ACPOWER3_ADC_NOISE 10	// попробуем "понизить" шум АЦП
 
 #define ACPOWER3_ADC_RATE 200    // количество отсчетов АЦП на ПОЛУволну - 200 (для прерываний)
 #define ACPOWER3_ADC_WAVES 4    // количество обсчитываемых ПОЛУволн 
 #define ACPOWER3_RMS_LAG 4
 
 //#define ACPOWER3_ADC_SAMPLES (ACPOWER3_ADC_RATE * ACPOWER3_ADC_WAVES)	// количество отсчетов после которого пересчитываем угол
-#define ACPOWER3_ADC_SAMPLES _ADCsamples
-//#define ACPOWER3_ADC_DONE (ACPOWER3_ADC_SAMPLES + 10)
-//#define ACPOWER3_ADC_NEXT (ACPOWER3_ADC_SAMPLES + 99)
-//#define ACPOWER3_ADC_START (ACPOWER3_ADC_SAMPLES + 1000)
+#define ACPOWER3_ADC_SAMPLES _adcCounterMax
+
 #define ACPOWER3_ADC_DONE 59000
 #define ACPOWER3_ADC_NEXT 64000
 #define ACPOWER3_ADC_START 65000
@@ -67,7 +65,7 @@
 
 #define ACPOWER3_ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
 #define ACPOWER3_ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
-#define ACPOWER3_ANGLE_DELTA 100		// запас по времени для открытия триака
+#define ACPOWER3_ANGLE_DELTA 500		// запас по времени для открытия триака
 #define ACPOWER3_ANGLE_MIDDLE 5000	// экспериментально...
 #define ACPOWER3_MAX 3500		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
@@ -88,6 +86,23 @@ public:
 	 		 uint8_t pinZC1, uint8_t pinTR1, uint8_t pinI1, uint8_t pinU1, \
 			 uint8_t pinZC2, uint8_t pinTR2, uint8_t pinI2, uint8_t pinU2,
 			 uint16_t pmax = ACPOWER3_MAX);
+	
+	// функции начальной инициализации
+	void init(float Iratio, float Uratio, float *pIcorr, float *pUcorr); // all in one
+		
+	void initTR();
+	void initZC(int zcIntMode = ACPOWER3_ZC_EDGE, bool AdcToZC = false);
+	void initADC(uint16_t ADCrate = ACPOWER3_ADC_RATE, uint16_t ADCwaves = ACPOWER3_ADC_WAVES);
+	void setADCratio(float Iratio, float Uratio, float lag = ACPOWER3_RMS_LAG);
+	void setRMScorrection(float *pIcorr, float *pUcorr);
+	
+	// управляющие функции
+	void control();					// вызывать регулярно для пересчета угла открытия триака.
+	void control(uint16_t angle_);  // для "ручного" управления триаком - MIN=0, MAX=10000. 
+									// Без стабилизации!! И вообще не понятно работает или нет. :-(
+	void setpower(uint16_t setP);
+//	void printConfig(uint8_t i);
+	void stop();
 		 
 	float I[3];   		// переменная расчета RMS тока
 	float U[3];   		// переменная расчета RMS напряжения
@@ -102,38 +117,19 @@ public:
 	volatile static uint32_t CounterZC_raw[3];
 	volatile static uint32_t CounterZC[3];
 	volatile static uint32_t CounterTR[3];
-	volatile static uint32_t CounterADC;	
-	uint32_t CounterRMS = 0;
 	
-	String LibVersion = ACPOWER3_LIBVERSION;
-	String LibConfig;
-
 	volatile static int16_t Xnow;
 	volatile static uint32_t X2;
 	volatile static uint16_t Angle; 
-	
-	void init(float Iratio, float Uratio, float *pIcorr, float *pUcorr); // all in one
-	void initTR();
-	void initZC(int zcIntMode = ACPOWER3_ZC_EDGE);
-	void initADC(uint16_t ADCrate = ACPOWER3_ADC_RATE, uint16_t ADCwaves = ACPOWER3_ADC_WAVES);
-	void setADCratio(float Iratio, float Uratio, float lag = ACPOWER3_RMS_LAG);
-	void setRMScorrection(float *pIcorr, float *pUcorr);
-	
-	void control();					// 
-	void control(uint16_t angle_);  // для "ручного" управления триаком - MIN=0, MAX=10000. Без стабилизации!!
 
-	void stop();
-	void setpower(uint16_t setP);
-	void printConfig(uint8_t i);
+	uint32_t CounterRMS = 0;
+	uint32_t CounterI;
+	uint32_t CounterU;
 	
-	//static void CloseTriac_int(); //__attribute__((always_inline));
-
-	//volatile static 
-	uint32_t _Icntr;
-	//volatile static 
-	uint32_t _Ucntr;
+	String LibVersion = ACPOWER3_LIBVERSION;
+	String LibConfig;
 	
-	//uint8_t PinTriac;
+//	static void CloseTriac_int(); //__attribute__((always_inline));
 
 protected:
 	//=== Прерывания
@@ -146,30 +142,33 @@ protected:
 	static void OpenTriac_int2(); 
 	
 	static void GetADC_int(); 
-	
-	static hw_timer_t* timerTriac[3];
-	static uint8_t _pinTriac[3];
-	
-	uint8_t _pinZCross[3];
-	uint32_t _msCheckZC = 0;
-	volatile static uint32_t _msZCross[3];
-	volatile static uint32_t _ZCcntr[3];
-	
-	int _ZCmode;
-	uint8_t _pinI[3];
-	uint8_t _pinU[3];
-	uint16_t _Izerolevel[3];
-	uint16_t _Uzerolevel[3];
-	
+
 	void setup_ZeroCross(uint8_t i);
 	void setup_Triac(uint8_t i);
 	void setup_ADC(uint16_t ADCrate, uint16_t ADCwaves);
 	void setup_ADCzerolevel(uint16_t Scntr);
+	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);	
 	
 	void correct_RMS();
 	void check_ZC();
+
+	volatile static SemaphoreHandle_t smphRMS;
+	static portMUX_TYPE muxADC;
+
+	static hw_timer_t* timerTriac[3];
+	hw_timer_t* timerADC = NULL;
+
+	bool getI;
+	int _zcEdge;
+	uint32_t _zcCheckMillis= 0;
+
+	uint8_t _pinI[3];
+	uint8_t _pinU[3];
+	uint8_t _pinZC[3];
+	static uint8_t _pinTR[3];
 	
-	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);
+	uint16_t _Izerolevel[3];
+	uint16_t _Uzerolevel[3];
 	
 	uint16_t Pprev = 0; //, Pold = 0;
 	int16_t _angle = 0;
@@ -177,36 +176,30 @@ protected:
 	
 	float _Uratio;
 	float _Iratio;
-	
 	bool _corrRMS = false;
-	
 	float *_pUcorr = NULL, *_pIcorr = NULL;
 	
-	hw_timer_t* timerADC = NULL;
-	
-	volatile static SemaphoreHandle_t smphRMS;
-	static portMUX_TYPE muxADC;
-	
-	//volatile static bool getI;
-	bool getI;
-	//volatile static bool takeADC;
-
-	volatile static uint8_t _zero;
+//	volatile static uint8_t _zero;
+	volatile static bool _adcAlign;
 	volatile static uint8_t _pin;		// current pin - ADC collect U/I on THIS pin
 	volatile static uint8_t _phase;		// current phase - ADC calculate THIS phase
 	
-	//volatile static uint16_t* _pAngle;
+//	volatile static uint16_t* _pAngle;
 	volatile static uint64_t _summ;
-	volatile static uint64_t _I2summ;
-	volatile static uint64_t _U2summ;
+//	volatile static uint64_t _I2summ;
+//	volatile static uint64_t _U2summ;
 	volatile static uint16_t _zerolevel;
-	volatile static uint16_t _ADCsamples;
+	volatile static uint16_t _adcCounterMax;
+	volatile static uint32_t _adcCounter;
 
+	volatile static uint32_t _zcCounter[3];
+	volatile static uint32_t _zcMillis[3];
+	
 	void log_cfg(String str0);
 	void log_cfg(String str0, uint16_t num1);
 	void log_cfg_ln(String str0);
-	void log_cfg_f(String str0, String str1);
-	void log_cfg_f(String str0, uint16_t num1);
+	void log_cfg_ln(String str0, String str1);
+	void log_cfg_ln(String str0, uint16_t num1);
 
 };
 

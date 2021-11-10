@@ -8,6 +8,7 @@
 #define ACpower3_macros_h
 
 #if defined(ESP32)
+
 #define DELAYx vTaskDelay(300 / portTICK_PERIOD_MS)
 #endif // ESP32
 
@@ -42,8 +43,6 @@
 #define PRINT(...)
 #define PRINTF(a, ...)
 #endif
-
-
 
 
 #endif // ACpower3_macros_h

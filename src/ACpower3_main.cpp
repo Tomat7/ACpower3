@@ -4,7 +4,7 @@
 * Алгоритм с привязкой расчетов к детектору нуля, поддержка ESP32 и перевод в библиотеку (c) Tomat7
 */
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "ACpower3.h"
 #include "ACpower3_macros.h"
 
@@ -12,7 +12,8 @@
 
 void ACpower3::control()
 {	
-	if ((millis() - _msCheckZC) > 1000) { check_ZC(); }
+	//			digitalWrite(_pinTR[2], HIGH);
+	if ((millis() - _zcCheckMillis) > 1000) { check_ZC(); }
 	
 	if (xSemaphoreTake(smphRMS, 0) == pdTRUE)
 	{ 
@@ -21,16 +22,16 @@ void ACpower3::control()
 		if (getI) 	// посчитали пока только ТОК
 		{	
 			getI = false;
-			I[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Iratio;
-			_Icntr = CounterADC;	// не нужно
+			I[_phase] = sqrt(_summ / _adcCounterMax) * _Iratio;
+			CounterI = _adcCounter;	// не нужно
 			_pin = _pinU[_phase];
 			_zerolevel = _Uzerolevel[_phase];
 		}
 		else		// теперь посчитали ещё и НАПРЯЖЕНИЕ
 		{
 			getI = true;
-			U[_phase] = sqrt(_summ / ACPOWER3_ADC_SAMPLES) * _Uratio;
-			_Ucntr = CounterADC;	// для совместимости
+			U[_phase] = sqrt(_summ / _adcCounterMax) * _Uratio;
+			CounterU = _adcCounter;	// для совместимости
 
 			if (_corrRMS) { correct_RMS(); }
 			P[_phase] = (uint16_t)(I[_phase] * U[_phase]);	
@@ -38,7 +39,7 @@ void ACpower3::control()
 			
 			if (Pset > 0) //&& (ZC[_phase]))
 			{
-				_angle += (Pset - Pnow) / _lag; //ACPOWER3_RMS_LAG;
+				_angle += (Pset - Pnow) / _lag; 
 				_angle = constrain(_angle, ACPOWER3_ANGLE_MIN, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
 			}
 			else 
@@ -66,14 +67,16 @@ void ACpower3::control()
 		
 		D(RMScore = xPortGetCoreID());
 		D(RMSprio = uxTaskPriorityGet(NULL));
-			
+		
 		portENTER_CRITICAL(&muxADC);
-#ifdef ACPOWER3_ADC_TUNING
-		if (ZC[_phase]) { CounterADC = ACPOWER3_ADC_NEXT; }
-		else { CounterADC = ACPOWER3_ADC_SAMPLES; }
-#else
-		CounterADC = ACPOWER3_ADC_START;
-#endif
+		
+		if (_adcAlign)
+		{
+			if (ZC[_phase]) _adcCounter = ACPOWER3_ADC_NEXT;
+			else _adcCounter = _adcCounterMax;
+		}
+		else _adcCounter = ACPOWER3_ADC_START;
+
 		portEXIT_CRITICAL(&muxADC);
 		
 	}
@@ -126,10 +129,10 @@ void ACpower3::correct_RMS()
 
 void ACpower3::check_ZC()
 {
-	_msCheckZC = millis();
+	_zcCheckMillis = millis();
 	for (int i=0; i<3; i++)
 	{
-		if (_ZCcntr[i] > 5) 
+		if (_zcCounter[i] > 5) 
 		{ 
 			ZC[i] = true; 
 		}
@@ -137,17 +140,19 @@ void ACpower3::check_ZC()
 		{ 
 			ZC[i] = false;
 			timerStop(timerTriac[i]);
-			digitalWrite(_pinTriac[i], LOW);
-#ifdef ACPOWER3_ADC_TUNING
-			if (_phase == i) 
-			{
-				portENTER_CRITICAL(&muxADC);
-				CounterADC = ACPOWER3_ADC_SAMPLES;
-				portEXIT_CRITICAL(&muxADC);
+			digitalWrite(_pinTR[i], LOW);
+
+			if (_adcAlign)
+			{			
+				if (_phase == i) 
+				{
+					portENTER_CRITICAL(&muxADC);
+					_adcCounter = _adcCounterMax;
+					portEXIT_CRITICAL(&muxADC);
+				}
 			}
-#endif
 		}
-		_ZCcntr[i] = 0;
+		_zcCounter[i] = 0;
 	}
 }
 

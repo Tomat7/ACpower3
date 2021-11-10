@@ -4,27 +4,22 @@
 	* Алгоритм с привязкой расчетов к детектору нуля, поддержка ESP32 и перевод в библиотеку (c) Tomat7
 */
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "ACpower3.h"
 #include "ACpower3_macros.h"
 
 #if defined(ESP32)
 
-//uint8_t ACpower3::_pinI;
-//uint8_t ACpower3::_pinU;
-//uint16_t ACpower3::_Izerolevel = 0;
-//uint16_t ACpower3::_Uzerolevel = 0;
-//uint8_t ACpower3::_phaseQty = 0;
 
 ACpower3::ACpower3()
 {
 	Pmax = ACPOWER3_MAX;		// а надо ли??
-	_pinZCross[0] = ACPOWER3_PIN_ZC0;	// пин подключения детектора нуля.
-	_pinTriac[0] = ACPOWER3_PIN_TR0;		// пин управляющий триаком. 
-	_pinZCross[1] = ACPOWER3_PIN_ZC1;	
-	_pinTriac[1] = ACPOWER3_PIN_TR1;		
-	_pinZCross[2] = ACPOWER3_PIN_ZC2;	
-	_pinTriac[2] = ACPOWER3_PIN_TR2;		
+	_pinZC[0] = ACPOWER3_PIN_ZC0;	// пин подключения детектора нуля.
+	_pinTR[0] = ACPOWER3_PIN_TR0;		// пин управляющий триаком. 
+	_pinZC[1] = ACPOWER3_PIN_ZC1;	
+	_pinTR[1] = ACPOWER3_PIN_TR1;		
+	_pinZC[2] = ACPOWER3_PIN_ZC2;	
+	_pinTR[2] = ACPOWER3_PIN_TR2;		
 	_pinI[0] = ACPOWER3_PIN_I0;		// пин датчика тока.
 	_pinU[0] = ACPOWER3_PIN_U0;		// пин датчика напряжения. 
 	_pinI[1] = ACPOWER3_PIN_I1;		
@@ -40,12 +35,12 @@ ACpower3::ACpower3( uint8_t pinZC0, uint8_t pinTR0, uint8_t pinI0, uint8_t pinU0
 					uint16_t pmax)
 {
 	Pmax = pmax;				// а надо ли??
-	_pinZCross[0] = pinZC0;		// пин подключения детектора нуля.
-	_pinTriac[0] = pinTR0;		// пин управляющий триаком. 
-	_pinZCross[1] = pinZC1;		
-	_pinTriac[1] = pinTR1;		 
-	_pinZCross[2] = pinZC2;	
-	_pinTriac[2] = pinTR2;	
+	_pinZC[0] = pinZC0;		// пин подключения детектора нуля.
+	_pinTR[0] = pinTR0;		// пин управляющий триаком. 
+	_pinZC[1] = pinZC1;		
+	_pinTR[1] = pinTR1;		 
+	_pinZC[2] = pinZC2;	
+	_pinTR[2] = pinTR2;	
 	_pinI[0] = pinI0;		// пин датчика тока.
 	_pinU[0] = pinU0;		// пин датчика напряжения. 
 	_pinI[1] = pinI1;		
@@ -70,7 +65,7 @@ void ACpower3::initTR()
 	Angle = 0;
 	
 	log_cfg_ln(ACPOWER3_LIBVERSION);
-	log_cfg_f(" + Pmax: ", Pmax);
+	log_cfg_ln(" + Pmax: ", Pmax);
 	
 	for (int i=0; i<3; i++)
 	{
@@ -79,9 +74,10 @@ void ACpower3::initTR()
 	}
 }
 
-void ACpower3::initZC(int zcIntMode)
+void ACpower3::initZC(int zcIntMode, bool AdcZcAlignment)
 { 
-	_ZCmode = zcIntMode;
+	_zcEdge = zcIntMode;
+	_adcAlign = AdcZcAlignment;
 	
 	for (int i=0; i<3; i++)
 	{
@@ -131,8 +127,8 @@ void ACpower3::stop()
 	{
 		timerStop(timerTriac[i]);
 		timerDetachInterrupt(timerTriac[i]);
-		detachInterrupt(digitalPinToInterrupt(_pinZCross[i]));
-		digitalWrite(_pinTriac[i], LOW);
+		detachInterrupt(digitalPinToInterrupt(_pinZC[i]));
+		digitalWrite(_pinTR[i], LOW);
 	}
 	
 	return;
