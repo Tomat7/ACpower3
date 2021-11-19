@@ -10,76 +10,88 @@
 
 #if defined(ESP32)
 
+void ACpower3::calculate()
+{
+	CounterRMS++;
+	
+	if (getI) 	// посчитали пока только ТОК
+	{	
+		getI = false;
+		I[_phase] = sqrt(_summ / _adcCounterMax) * _Iratio;
+		CounterI = _adcCounter;	// не нужно
+		_pin = _pinU[_phase];
+		_zerolevel = _Uzerolevel[_phase];
+	}
+	else		// теперь посчитали ещё и НАПРЯЖЕНИЕ
+	{
+		getI = true;
+		U[_phase] = sqrt(_summ / _adcCounterMax) * _Uratio;
+		CounterU = _adcCounter;	// для совместимости
+
+		if (_corrRMS) { correct_RMS(); }
+		P[_phase] = (uint16_t)(I[_phase] * U[_phase]);	
+		Pnow = P[0] +  P[1] +  P[2];
+		
+		if (Pset > 0) //&& (ZC[_phase]))
+		{
+			_angle += (Pset - Pnow) / _lag; 
+			_angle = constrain(_angle, ACPOWER3_ANGLE_MIN, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
+		}
+		else 
+		{ 
+			_angle = ACPOWER3_ANGLE_MIN - 500;
+		}
+		
+		_phase++;
+		
+		if (_phase == 3) 
+		{
+			_phase = 0;
+			Pavg = (uint16_t)((Pavg + Pnow) / 2);
+			Pold = Pnow;
+			//				_angle += (Pset - Pnow) / _lag; 
+			//				_angle = constrain(_angle, ACPOWER3_ANGLE_MIN - ACPOWER3_ANGLE_DELTA, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
+		}
+		
+		_pin = _pinI[_phase];
+		_zerolevel = _Izerolevel[_phase];
+	}
+
+	_summ = 0;
+	adcAttachPin(_pin);
+	adcStart(_pin);
+	
+	Angle = _angle;
+	
+	for (int i=0; i<3; i++)
+	{
+		if (ZC[i]) A[i] = Angle;
+		else A[i] = ACPOWER3_ANGLE_MIN - 500;
+	}
+	
+	if (_corrAngle && ZC[2]) A[2] = ACPOWER3_ANGLE_CORR;
+	
+	D(RMScore = xPortGetCoreID());
+	D(RMSprio = uxTaskPriorityGet(NULL));
+	
+	portENTER_CRITICAL(&muxADC);
+	
+	if (_adcAlign)
+	{
+		if (ZC[_phase]) _adcCounter = ACPOWER3_ADC_NEXT;
+		else _adcCounter = _adcCounterMax;
+	}
+	else _adcCounter = ACPOWER3_ADC_START;
+
+	portEXIT_CRITICAL(&muxADC);
+	
+	return;
+}
+
 void ACpower3::control()
 {	
-	//			digitalWrite(_pinTR[2], HIGH);
-	if ((millis() - _zcCheckMillis) > 1000) { check_ZC(); }
-	
-	if (xSemaphoreTake(smphRMS, 0) == pdTRUE)
-	{ 
-		CounterRMS++;
-		
-		if (getI) 	// посчитали пока только ТОК
-		{	
-			getI = false;
-			I[_phase] = sqrt(_summ / _adcCounterMax) * _Iratio;
-			CounterI = _adcCounter;	// не нужно
-			_pin = _pinU[_phase];
-			_zerolevel = _Uzerolevel[_phase];
-		}
-		else		// теперь посчитали ещё и НАПРЯЖЕНИЕ
-		{
-			getI = true;
-			U[_phase] = sqrt(_summ / _adcCounterMax) * _Uratio;
-			CounterU = _adcCounter;	// для совместимости
-
-			if (_corrRMS) { correct_RMS(); }
-			P[_phase] = (uint16_t)(I[_phase] * U[_phase]);	
-			Pnow = P[0] +  P[1] +  P[2];
-			
-			if (Pset > 0) //&& (ZC[_phase]))
-			{
-				_angle += (Pset - Pnow) / _lag; 
-				_angle = constrain(_angle, ACPOWER3_ANGLE_MIN, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
-			}
-			else 
-			{ 
-				_angle = ACPOWER3_ANGLE_MIN - 500;
-			}
-			
-			_phase++;
-			
-			if (_phase == 3) 
-			{
-				_phase = 0;
-				Pavg = (uint16_t)((Pavg + Pnow) / 2);
-				Pold = Pnow;
-			}
-			
-			_pin = _pinI[_phase];
-			_zerolevel = _Izerolevel[_phase];
-		}
-
-		_summ = 0;
-		adcAttachPin(_pin);
-		adcStart(_pin);
-		Angle = _angle;
-		
-		D(RMScore = xPortGetCoreID());
-		D(RMSprio = uxTaskPriorityGet(NULL));
-		
-		portENTER_CRITICAL(&muxADC);
-		
-		if (_adcAlign)
-		{
-			if (ZC[_phase]) _adcCounter = ACPOWER3_ADC_NEXT;
-			else _adcCounter = _adcCounterMax;
-		}
-		else _adcCounter = ACPOWER3_ADC_START;
-
-		portEXIT_CRITICAL(&muxADC);
-		
-	}
+	if ((millis() - _zcCheckMillis) > 1000) check_ZC();
+	if (xSemaphoreTake(smphRMS, 0) == pdTRUE) calculate();
 	return;
 }
 
@@ -96,8 +108,9 @@ void ACpower3::setpower(uint16_t setPower)
 	if (setPower > Pmax) Pset = Pmax;
 	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
-	//_lag = ACPOWER3_RMS_LAG;
-
+	
+if ((Pset > Pmax/6.9) && (Pset < Pmax/4.5)) _corrAngle = true;
+	else _corrAngle = false; 
 	return;
 }
 

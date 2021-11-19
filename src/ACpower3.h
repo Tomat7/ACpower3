@@ -63,9 +63,10 @@
 #define ACPOWER3_PIN_I2 34  // датчик тока
 #define ACPOWER3_PIN_U2 35  // датчик напряжения
 
+#define ACPOWER3_ANGLE_CORR 2000	// 
 #define ACPOWER3_ANGLE_MIN 1000		// минимальный угол открытия - определяет MIN возможную мощность
-#define ACPOWER3_ANGLE_MAX 10100		// максимальный угол открытия триака - определяет MAX возможную мощность
-#define ACPOWER3_ANGLE_DELTA 500		// запас по времени для открытия триака
+#define ACPOWER3_ANGLE_MAX 10100	// максимальный угол открытия триака - определяет MAX возможную мощность
+#define ACPOWER3_ANGLE_DELTA 500	// запас по времени для открытия триака
 #define ACPOWER3_ANGLE_MIDDLE 5000	// экспериментально...
 #define ACPOWER3_MAX 3500		// больше этой мощности установить не получится
 #define ACPOWER3_MIN 150		// минимально допустимая устанавливаемая мощность (наверное можно и меньше)
@@ -117,11 +118,13 @@ public:
 	volatile static uint32_t CounterZC_raw[3];
 	volatile static uint32_t CounterZC[3];
 	volatile static uint32_t CounterTR[3];
+	volatile static uint16_t A[3]; 
 	
 	volatile static int16_t Xnow;
 	volatile static uint32_t X2;
-	volatile static uint16_t Angle; 
+	//volatile static uint16_t Angle; 
 
+	uint16_t Angle; 
 	uint32_t CounterRMS = 0;
 	uint32_t CounterI;
 	uint32_t CounterU;
@@ -149,9 +152,10 @@ protected:
 	void setup_ADCzerolevel(uint16_t Scntr);
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);	
 	
+	void calculate();
 	void correct_RMS();
 	void check_ZC();
-
+	
 	volatile static SemaphoreHandle_t smphRMS;
 	static portMUX_TYPE muxADC;
 
@@ -177,6 +181,7 @@ protected:
 	float _Uratio;
 	float _Iratio;
 	bool _corrRMS = false;
+	bool _corrAngle = false;
 	float *_pUcorr = NULL, *_pIcorr = NULL;
 	
 //	volatile static uint8_t _zero;

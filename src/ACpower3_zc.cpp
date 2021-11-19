@@ -10,10 +10,11 @@
 
 #if defined(ESP32)
 
-volatile uint16_t ACpower3::Angle;
+//volatile uint16_t ACpower3::Angle;
 volatile uint8_t ACpower3::_phase;
 volatile bool ACpower3::_adcAlign;
-	
+
+volatile uint16_t ACpower3::A[3];		
 volatile uint32_t ACpower3::CounterZC[3];
 volatile uint32_t ACpower3::CounterZC_raw[3];
 volatile uint32_t ACpower3::_zcCounter[3];
@@ -50,7 +51,7 @@ void IRAM_ATTR ACpower3::ZeroCross_int0() //__attribute__((always_inline))
 		CounterZC[i]++;
 		_zcCounter[i]++;
 		
-		timerWrite(timerTriac[i], Angle);
+		timerWrite(timerTriac[i], A[i]);
 		timerStart(timerTriac[i]);
 		
 		if (_adcAlign && (_phase == i) && (_adcCounter == ACPOWER3_ADC_NEXT))
@@ -75,7 +76,7 @@ void IRAM_ATTR ACpower3::ZeroCross_int1() //__attribute__((always_inline))
 		CounterZC[i]++;
 		_zcCounter[i]++;
 		
-		timerWrite(timerTriac[i], Angle);
+		timerWrite(timerTriac[i], A[i]);
 		timerStart(timerTriac[i]);
 		
 		if (_adcAlign && (_phase == i) && (_adcCounter == ACPOWER3_ADC_NEXT))
@@ -100,7 +101,8 @@ void IRAM_ATTR ACpower3::ZeroCross_int2() //__attribute__((always_inline))
 		CounterZC[i]++;
 		_zcCounter[i]++;
 		
-		timerWrite(timerTriac[i], Angle);
+//		timerWrite(timerTriac[i], Angle);
+		timerWrite(timerTriac[i], A[i]);
 		timerStart(timerTriac[i]);
 		
 		if (_adcAlign && (_phase == i) && (_adcCounter == ACPOWER3_ADC_NEXT))
