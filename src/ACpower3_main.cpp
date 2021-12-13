@@ -85,6 +85,8 @@ void ACpower3::calculate()
 
 	portEXIT_CRITICAL(&muxADC);
 	
+	MillisRMS = millis();
+	
 	return;
 }
 
@@ -100,6 +102,13 @@ void ACpower3::control(uint16_t angle_)
 {	
 	control();
 	Angle = angle_;
+	
+	for (int i=0; i<3; i++)
+	{
+		if (ZC[i]) A[i] = Angle;
+		else A[i] = ACPOWER3_ANGLE_MIN - 500;
+	}
+
 	return;
 }
 
@@ -109,7 +118,7 @@ void ACpower3::setpower(uint16_t setPower)
 	else if (setPower < ACPOWER3_MIN) Pset = 0;
 	else Pset = setPower;
 	
-if ((Pset > Pmax/6.9) && (Pset < Pmax/4.5)) _corrAngle = true;
+	if ((Pset > Pmax/6.9) && (Pset < Pmax/4.5)) _corrAngle = true;
 	else _corrAngle = false; 
 	return;
 }

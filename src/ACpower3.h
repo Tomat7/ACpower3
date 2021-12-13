@@ -21,7 +21,7 @@
 
 #if defined(ESP32)
 
-#define ACPOWER3_LIBVERSION "ACpower3_v20211120 " 
+#define ACPOWER3_LIBVERSION "ACpower3_v20211203 " 
 
 #define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ACPOWER3_ZC_EDGE RISING	// FALLING, RISING
@@ -128,6 +128,7 @@ public:
 	uint32_t CounterRMS = 0;
 	uint32_t CounterI;
 	uint32_t CounterU;
+	uint32_t MillisRMS;
 	
 	String LibVersion = ACPOWER3_LIBVERSION;
 	String LibConfig;
