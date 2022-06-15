@@ -42,13 +42,13 @@ void ACpower3::calculate()
 			_angle = ACPOWER3_ANGLE_MIN - 500;
 		}
 		
-		_phase++;
+		_phase++;			// следующая фаза
 		
-		if (_phase == 3) 
+		if (_phase == 3) 	// если "перебор" - считаем среднее и начинаем опять с нулевой фазы 
 		{
 			_phase = 0;
-			Pavg = (uint16_t)((Pavg + Pnow) / 2);
-			Pold = Pnow;
+			Pavg = (uint16_t)((Pavg + Pnow) / 2);	// Pavg "меняется" очень медленно
+			//Pold = Pnow;
 			//				_angle += (Pset - Pnow) / _lag; 
 			//				_angle = constrain(_angle, ACPOWER3_ANGLE_MIN - ACPOWER3_ANGLE_DELTA, ACPOWER3_ANGLE_MAX - ACPOWER3_ANGLE_DELTA);
 		}
@@ -69,7 +69,7 @@ void ACpower3::calculate()
 		else A[i] = ACPOWER3_ANGLE_MIN - 500;
 	}
 	
-	if (_corrAngle && ZC[2]) A[2] = ACPOWER3_ANGLE_CORR;
+	if (_corrAngle && ZC[0]&& ZC[1] && ZC[2]) A[2] = ACPOWER3_ANGLE_CORR;
 	
 	D(RMScore = xPortGetCoreID());
 	D(RMSprio = uxTaskPriorityGet(NULL));
