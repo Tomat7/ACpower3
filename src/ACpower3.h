@@ -21,7 +21,7 @@
 
 #if defined(ESP32)
 
-#define ACPOWER3_LIBVERSION "ACpower3_v20220612 " 
+#define ACPOWER3_LIBVERSION "ACpower3_v20230924 " 
 
 #define ACPOWER3_ZC_CRAZY		// если ZeroCross прерывание выполняется слишком часто :-(
 #define ACPOWER3_ZC_EDGE RISING	// FALLING, RISING
@@ -110,7 +110,8 @@ public:
 	uint16_t P[3];		// мощность по каждой фазе
 	uint16_t Pnow;		// суммарная мощность
 	uint16_t Pavg;		// среднее двух измерений
-//	uint16_t Pold = 0;	
+	uint16_t Pmid = 0;	
+	uint16_t Pold[3] = {0};	
 	uint16_t Pset = 0;
 	uint16_t Pmax = 0;
 	bool ZC[3];
@@ -154,9 +155,15 @@ protected:
 	uint16_t get_ZeroLevel(uint8_t z_pin, uint16_t Scntr);	
 	
 	void calculate();
+	void calc_angle();
+	void calc_power();
+	void calc_phase();
+	
+	void set_angle();
 	void correct_RMS();
 	void check_ZC();
-	
+	void reset_ADC();
+		
 	volatile static SemaphoreHandle_t smphRMS;
 	static portMUX_TYPE muxADC;
 
